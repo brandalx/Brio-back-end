@@ -1,0 +1,102 @@
+# todo: swagger automated doc for Restaurant route client side
+
+#this is basic example for yaml swagger doc with get request
+openapi: 3.0.1
+info:
+  title: Restaurant API
+  version: 1.0.0
+servers:
+  - url: /api/v1
+paths:
+  /restaurants:
+    get:
+      summary: Retrieve all restaurants
+      responses:
+        200:
+          description: A list of all restaurants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Restaurant"
+  /restaurants/{id}:
+    get:
+      summary: Retrieve a specific restaurant by ID
+      parameters:
+        - name: id
+          in: path
+          description: ID of the restaurant to retrieve
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: A single restaurant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Restaurant"
+        404:
+          description: Restaurant not found
+          content: {}
+  /restaurants/{id}/products:
+    get:
+      summary: Retrieve a specific restaurant's menu
+      parameters:
+        - name: id
+          in: path
+          description: ID of the restaurant to retrieve the menu for
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: A list of all products in the restaurant's menu
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        404:
+          description: Restaurant not found
+          content: {}
+  /restaurants/recommends:
+    get:
+      summary: Retrieve recommended restaurants
+      responses:
+        200:
+          description: A list of recommended restaurants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Restaurant"
+components:
+  schemas:
+    Restaurant:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The restaurant's ID
+        name:
+          type: string
+          description: The restaurant's name
+        address:
+          type: string
+          description: The restaurant's address
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The product's ID
+        name:
+          type: string
+          description: The product's name
+        price:
+          type: number
+          description: The product's price
