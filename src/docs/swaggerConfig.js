@@ -1,6 +1,5 @@
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
-import { urldb, localurldb } from "../configs/config.js";
 // Set up Swagger options and generate the Swagger documentation
 
 const swaggerOptions = {
@@ -13,21 +12,16 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: urldb,
+        url: "Brio Sever",
 
-        description: "The adress is " + urldb,
-      },
-      {
-        url: urldb,
-
-        description: "The adress is " + urldb,
+        description: "Default server connection",
       },
     ],
   },
-  // API schema model for all routes
+  // All api route files for swagger docs
   apis: [
-    "./docs/swaggerRestaurantsClient.js",
-    "./docs/swaggerRestaurantsSeller.js",
+    "./src/docs/swaggerRestaurantsClient.yaml",
+    "./src/docs/swaggerRestaurantsSeller.yaml",
   ],
 };
 
