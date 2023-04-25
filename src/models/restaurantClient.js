@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 
 let schema = new mongoose.Schema({
   title: String,
-  adress: String,
+  address: String,
   location: String,
   image: String,
   reviews: Object,
