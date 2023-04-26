@@ -1,28 +1,184 @@
-# todo: swagger automated doc for Restaurant route seller side
-
-#this is basic example for yaml swagger doc with get request
-
-openapi: 3.0.0
+openapi: 3.0.1
 info:
-  title: Sample API
-  description: Optional multiline or single-line description in [CommonMark](http://commonmark.org/help/) or HTML.
-  version: 0.1.9
+  title: Restaurant API (Seller Side)
+  description: This API allows restaurant owners to manage their restaurant and products.
+  version: 1.0.0
 servers:
-  - url: http://api.example.com/v1
-    description: Optional server description, e.g. Main (production) server
-  - url: http://staging-api.example.com
-    description: Optional server description, e.g. Internal staging server for testing
+  - url:  /api/v1
+    description: Production server
 paths:
-  /products:
+  /restaurants/{id}:
     get:
-      summary: Returns a list of users.
-      description: Optional extended description in CommonMark or HTML.
+      summary: Returns a restaurant by ID.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The ID of the restaurant to retrieve.
       responses:
-        "200": # status code
-          description: A JSON array of user names
+        "200":
+          description: A restaurant object.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Restaurant"
+    put:
+      summary: Updates a restaurant by ID.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The ID of the restaurant to update.
+        - in: body
+          name: body
+          description: The updated restaurant object.
+          schema:
+            $ref: "#/components/schemas/RestaurantInput"
+      responses:
+        "200":
+          description: The updated restaurant object.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Restaurant"
+    delete:
+      summary: Deletes a restaurant by ID.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The ID of the restaurant to delete.
+      responses:
+        "204":
+          description: The restaurant was deleted successfully.
+
+  /restaurants:
+    post:
+      summary: Creates a new restaurant.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RestaurantInput"
+      responses:
+        "201":
+          description: The newly created restaurant object.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Restaurant"
+    get:
+      summary: Returns a list of all restaurants.
+      responses:
+        "200":
+          description: A JSON array of restaurant objects.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  type: string
+                  $ref: "#/components/schemas/Restaurant"
+
+  /restaurants/{id}/products:
+    get:
+      summary: Returns a restaurant's menu by ID.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The ID of the restaurant to retrieve the menu from.
+      responses:
+        "200":
+          description: A JSON array of product objects.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+    post:
+      summary: Creates a new product for a restaurant by ID.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The ID of the restaurant to create the product for.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+      responses:
+        "201":
+          description: The newly created product object.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    put:
+      summary: Updates a product by ID for a restaurant by ID.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The ID of the restaurant that the product belongs to.
+        - in: path
+          name: product_id
+          schema:
+            type: string
+          required: true
+          description: The ID of the product to update.
+        - in: body
+          name: body
+          description: The updated product object.
+          schema:
+            $ref: "#/components/schemas/ProductInput"
+      responses:
+        "200":
+          description: The updated product object.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+            "200":
+              description: The updated product object.
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Product"
+  /restaurants/{id}/products/{product_id}:
+    delete:
+      summary: Deletes a product by ID for a restaurant by ID.
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The ID of the restaurant that the product belongs to.
+        - in: path
+          name: product_id
+          schema:
+            type: string
+          required: true
+          description: The ID of the product to delete.
+      responses:
+        "204":
+          description: The product was deleted successfully.
+        "404":
+          description: The restaurant or product was not found.
