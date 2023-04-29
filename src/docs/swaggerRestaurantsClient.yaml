@@ -1,15 +1,17 @@
-# todo: swagger automated doc for Restaurant route client side
-
-#this is basic example for yaml swagger doc with get request
 openapi: 3.0.1
 info:
   title: Restaurant API
   version: 1.0.0
 servers:
-  - url: /api/v1
+  - url: http://localhost:3001/
+tags:
+  - name: Restaurant Client Side
+    description: All routes for restaurant client side
 paths:
   /restaurants:
     get:
+      tags:
+        - Restaurant Client Side
       summary: Retrieve all restaurants
       responses:
         200:
@@ -22,6 +24,8 @@ paths:
                   $ref: "#/components/schemas/Restaurant"
   /restaurants/{id}:
     get:
+      tags:
+        - Restaurant Client Side
       summary: Retrieve a specific restaurant by ID
       parameters:
         - name: id
@@ -40,30 +44,10 @@ paths:
         404:
           description: Restaurant not found
           content: {}
-  /restaurants/{id}/products:
-    get:
-      summary: Retrieve a specific restaurant's menu
-      parameters:
-        - name: id
-          in: path
-          description: ID of the restaurant to retrieve the menu for
-          required: true
-          schema:
-            type: integer
-      responses:
-        200:
-          description: A list of all products in the restaurant's menu
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Product"
-        404:
-          description: Restaurant not found
-          content: {}
   /restaurants/recommends:
     get:
+      tags:
+        - Restaurant Client Side
       summary: Retrieve recommended restaurants
       responses:
         200:
@@ -82,21 +66,21 @@ components:
         id:
           type: integer
           description: The restaurant's ID
-        name:
+        title:
           type: string
-          description: The restaurant's name
+          description: The restaurant's title
         address:
           type: string
           description: The restaurant's address
-    Product:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: The product's ID
-        name:
+        location:
           type: string
-          description: The product's name
-        price:
-          type: number
-          description: The product's price
+          description: The restaurant's location
+        image:
+          type: string
+          description: The restaurant's image
+        reviews:
+          type: object
+          description: The restaurant's reviews
+        company:
+          type: integer
+          description: The ID of the company that owns the restaurant
