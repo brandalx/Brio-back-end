@@ -60,27 +60,72 @@ paths:
                   $ref: "#/components/schemas/Restaurant"
 components:
   schemas:
+    # Schema for Restaurant object
     Restaurant:
       type: object
       properties:
         id:
-          type: integer
-          description: The restaurant's ID
-        title:
           type: string
-          description: The restaurant's title
+          description: The ID of the restaurant.
+        name:
+          type: string
+          description: The name of the restaurant.
         address:
           type: string
-          description: The restaurant's address
-        location:
+          description: The address of the restaurant.
+        phone_number:
           type: string
-          description: The restaurant's location
-        image:
+          description: The phone number of the restaurant.
+      required:
+        - id
+        - name
+        - address
+
+    # Schema for RestaurantInput object
+    RestaurantInput:
+      type: object
+      properties:
+        name:
           type: string
-          description: The restaurant's image
-        reviews:
-          type: object
-          description: The restaurant's reviews
-        company:
-          type: integer
-          description: The ID of the company that owns the restaurant
+          description: The name of the restaurant.
+        address:
+          type: string
+          description: The address of the restaurant.
+        phone_number:
+          type: string
+          description: The phone number of the restaurant.
+
+    # Schema for Product object
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the product.
+        name:
+          type: string
+          description: The name of the product.
+        description:
+          type: string
+          description: The description of the product.
+        price:
+          type: number
+          description: The price of the product.
+      required:
+        - id
+        - name
+        - price
+
+    # Schema for ProductInput object
+    ProductInput:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the product.
+        description:
+          type: string
+          description: The description of the product.
+        price:
+          type: number
+          description: The price of the product.
