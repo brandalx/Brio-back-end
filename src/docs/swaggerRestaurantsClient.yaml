@@ -103,11 +103,15 @@ components:
         image:
           type: string
           description: The link to the image of the restaurant.
+        company_id:
+           type: int
+           description: ref of companies.
       required:
         - id
         - title
         - address
         - image
+        - company_id
 
     # Schema for RestaurantInput object
     RestaurantInput:
