@@ -44,6 +44,32 @@ paths:
         404:
           description: Restaurant not found
           content: {}
+
+  /restaurants/{id}/products:
+    get:
+      tags:
+        - Restaurant Client Side
+        - Restaurant Seller Side
+      summary: Get restaurant's menu
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the restaurant
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of products for the specified restaurant
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '404':
+          description: The specified restaurant was not found
+
   /restaurants/recommends:
     get:
       tags:
@@ -58,28 +84,30 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Restaurant"
+
 components:
   schemas:
     # Schema for Restaurant object
-    Restaurant:
+    Restaurants:
       type: object
       properties:
         id:
-          type: string
+          type: int
           description: The ID of the restaurant.
-        name:
+        title:
           type: string
           description: The name of the restaurant.
         address:
           type: string
           description: The address of the restaurant.
-        phone_number:
+        image:
           type: string
-          description: The phone number of the restaurant.
+          description: The link to the image of the restaurant.
       required:
         - id
-        - name
+        - title
         - address
+        - image
 
     # Schema for RestaurantInput object
     RestaurantInput:
@@ -96,25 +124,36 @@ components:
           description: The phone number of the restaurant.
 
     # Schema for Product object
-    Product:
+    Products:
       type: object
       properties:
         id:
-          type: string
+          type: int
           description: The ID of the product.
-        name:
+        title:
           type: string
           description: The name of the product.
         description:
           type: string
           description: The description of the product.
+        image:
+          type: array
+          description: array of links to images.
         price:
           type: number
           description: The price of the product.
+          format: double
+        restaurant_id:
+          type: int
+          description: The ID of the restaurant this product belongs to.
+
       required:
         - id
-        - name
+        - title
+        - description
+        - image
         - price
+        - restaurant
 
     # Schema for ProductInput object
     ProductInput:
@@ -129,3 +168,4 @@ components:
         price:
           type: number
           description: The price of the product.
+          format: double
