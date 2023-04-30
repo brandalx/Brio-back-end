@@ -170,3 +170,37 @@ paths:
           description: The product was deleted successfully.
         "404":
           description: The restaurant or product was not found.
+components:
+  schemas:
+
+    Companies:
+      type: object
+      properties:
+        id:
+          type: int
+          description: The ID of the company.
+        name:
+          type: string
+          description: The name of the company.
+
+    Users:
+      type: object
+      properties:
+        id:
+          type: int
+          description: The ID of the user.
+        firstname:
+          type: string
+          description: The firstname of the user.
+        lastname:
+          type: string
+          description: The lastname of the user.
+        email:
+          type: string
+          description: The email of the user.
+        phone:
+          type: string
+          description: The phone of the user.
+        company:
+          type: string
+          description: ref to the company of the user.
