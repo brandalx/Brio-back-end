@@ -21,7 +21,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Restaurants"
+                  $ref: "#/components/schemas/Restaurant"
   /restaurants/{id}:
     get:
       tags:
@@ -40,7 +40,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Restaurants"
+                $ref: "#/components/schemas/Restaurant"
         404:
           description: Restaurant not found
           content: {}
@@ -66,7 +66,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Products'
+                  $ref: '#/components/schemas/Product'
         '404':
           description: The specified restaurant was not found
 
@@ -83,25 +83,10 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Restaurants"
+                  $ref: "#/components/schemas/Restaurant"
 
 components:
   schemas:
-    # Schema for ProductInput object
-    ProductInput:
-      type: object
-      properties:
-        name:
-          type: string
-          description: The name of the product.
-        description:
-          type: string
-          description: The description of the product.
-        price:
-          type: number
-          description: The price of the product.
-          format: double
-
     # Schema for Restaurant object
     Restaurants:
       type: object
@@ -119,8 +104,8 @@ components:
           type: string
           description: The link to the image of the restaurant.
         company_id:
-          type: int
-          description: ref of companies.
+           type: int
+           description: ref of companies.
       required:
         - id
         - title
@@ -173,3 +158,18 @@ components:
         - image
         - price
         - restaurant
+
+    # Schema for ProductInput object
+    ProductInput:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the product.
+        description:
+          type: string
+          description: The description of the product.
+        price:
+          type: number
+          description: The price of the product.
+          format: double

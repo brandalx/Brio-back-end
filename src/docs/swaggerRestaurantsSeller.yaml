@@ -27,7 +27,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Restaurants"
+                $ref: "#/components/schemas/Restaurant"
     put:
       tags:
         - Restaurant Seller Side
@@ -50,7 +50,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Restaurants"
+                $ref: "#/components/schemas/Restaurant"
     delete:
       tags:
         - Restaurant Seller Side
@@ -86,7 +86,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Products"
+                  $ref: "#/components/schemas/Product"
     post:
       tags:
         - Restaurant Seller Side
@@ -110,7 +110,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Products"
+                $ref: "#/components/schemas/Product"
     put:
       tags:
         - Restaurant Seller Side
@@ -139,14 +139,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Products"
+                $ref: "#/components/schemas/Product"
 
             "200":
               description: The updated product object.
               content:
                 application/json:
                   schema:
-                    $ref: "#/components/schemas/Products"
+                    $ref: "#/components/schemas/Product"
   /restaurants/{id}/products/{product_id}:
     delete:
       tags:
@@ -170,78 +170,8 @@ paths:
           description: The product was deleted successfully.
         "404":
           description: The restaurant or product was not found.
-
 components:
   schemas:
-    Products:
-      type: object
-      properties:
-        id:
-          type: int
-          description: The ID of the product.
-        title:
-          type: string
-          description: The name of the product.
-        description:
-          type: string
-          description: The description of the product.
-        image:
-          type: array
-          description: array of links to images.
-        price:
-          type: number
-          description: The price of the product.
-          format: double
-        restaurant_id:
-          type: int
-          description: The ID of the restaurant this product belongs to.
-
-      required:
-        - id
-        - title
-        - description
-        - image
-        - price
-        - restaurant
-
-    RestaurantInput:
-      type: object
-      properties:
-        name:
-          type: string
-          description: The name of the restaurant.
-        address:
-          type: string
-          description: The address of the restaurant.
-        phone_number:
-          type: string
-          description: The phone number of the restaurant.
-
-    # Schema for Restaurant object
-    Restaurants:
-      type: object
-      properties:
-        id:
-          type: int
-          description: The ID of the restaurant.
-        title:
-          type: string
-          description: The name of the restaurant.
-        address:
-          type: string
-          description: The address of the restaurant.
-        image:
-          type: string
-          description: The link to the image of the restaurant.
-        company_id:
-          type: int
-          description: ref of companies.
-      required:
-        - id
-        - title
-        - address
-        - image
-        - company_id
 
     Companies:
       type: object
@@ -274,27 +204,3 @@ components:
         company:
           type: string
           description: ref to the company of the user.
-
-          # Schema for ProductInput object
-
-    ProductInput:
-      type: object
-      properties:
-        title:
-          type: string
-          description: The name of the product.
-        description:
-          type: string
-          description: The description of the product.
-        image:
-          type: array
-          description: array of links to images.
-        price:
-          type: number
-          description: The price of the product.
-          format: double
-      required:
-        - title
-        - description
-        - image
-        - price
