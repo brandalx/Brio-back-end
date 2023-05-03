@@ -1,14 +1,18 @@
 openapi: 3.0.1
 info:
   title: Restaurant API (Seller Side)
-  description: This API allows restaurant owners to manage their restaurant and products.
   version: 1.0.0
 servers:
-  - url:  /api/v1
-    description: Production server
+  - url: http://localhost:3001/
+tags:
+  - name: Restaurant Seller Side
+    description: All routes for restaurant seller side
 paths:
   /restaurants/{id}:
     get:
+      tags:
+        - Restaurant Seller Side
+        - Restaurant Client Side
       summary: Returns a restaurant by ID.
       parameters:
         - in: path
@@ -23,8 +27,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Restaurant"
+                $ref: "#/components/schemas/Restaurants"
     put:
+      tags:
+        - Restaurant Seller Side
       summary: Updates a restaurant by ID.
       parameters:
         - in: path
@@ -44,8 +50,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Restaurant"
+                $ref: "#/components/schemas/Restaurants"
     delete:
+      tags:
+        - Restaurant Seller Side
       summary: Deletes a restaurant by ID.
       parameters:
         - in: path
@@ -57,37 +65,11 @@ paths:
       responses:
         "204":
           description: The restaurant was deleted successfully.
-
-  /restaurants:
-    post:
-      summary: Creates a new restaurant.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/RestaurantInput"
-      responses:
-        "201":
-          description: The newly created restaurant object.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Restaurant"
-    get:
-      summary: Returns a list of all restaurants.
-      responses:
-        "200":
-          description: A JSON array of restaurant objects.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Restaurant"
-
   /restaurants/{id}/products:
     get:
+      tags:
+        - Restaurant Seller Side
+        - Restaurant Client Side
       summary: Returns a restaurant's menu by ID.
       parameters:
         - in: path
@@ -104,8 +86,10 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Product"
+                  $ref: "#/components/schemas/Products"
     post:
+      tags:
+        - Restaurant Seller Side
       summary: Creates a new product for a restaurant by ID.
       parameters:
         - in: path
@@ -126,8 +110,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Product"
+                $ref: "#/components/schemas/Products"
     put:
+      tags:
+        - Restaurant Seller Side
       summary: Updates a product by ID for a restaurant by ID.
       parameters:
         - in: path
@@ -153,16 +139,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Product"
+                $ref: "#/components/schemas/Products"
 
             "200":
               description: The updated product object.
               content:
                 application/json:
                   schema:
-                    $ref: "#/components/schemas/Product"
+                    $ref: "#/components/schemas/Products"
   /restaurants/{id}/products/{product_id}:
     delete:
+      tags:
+        - Restaurant Seller Side
       summary: Deletes a product by ID for a restaurant by ID.
       parameters:
         - in: path
@@ -182,3 +170,131 @@ paths:
           description: The product was deleted successfully.
         "404":
           description: The restaurant or product was not found.
+
+components:
+  schemas:
+    Products:
+      type: object
+      properties:
+        id:
+          type: int
+          description: The ID of the product.
+        title:
+          type: string
+          description: The name of the product.
+        description:
+          type: string
+          description: The description of the product.
+        image:
+          type: array
+          description: array of links to images.
+        price:
+          type: number
+          description: The price of the product.
+          format: double
+        restaurant_id:
+          type: int
+          description: The ID of the restaurant this product belongs to.
+
+      required:
+        - id
+        - title
+        - description
+        - image
+        - price
+        - restaurant
+
+    RestaurantInput:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the restaurant.
+        address:
+          type: string
+          description: The address of the restaurant.
+        phone_number:
+          type: string
+          description: The phone number of the restaurant.
+
+    # Schema for Restaurant object
+    Restaurants:
+      type: object
+      properties:
+        id:
+          type: int
+          description: The ID of the restaurant.
+        title:
+          type: string
+          description: The name of the restaurant.
+        address:
+          type: string
+          description: The address of the restaurant.
+        image:
+          type: string
+          description: The link to the image of the restaurant.
+        company_id:
+          type: int
+          description: ref of companies.
+      required:
+        - id
+        - title
+        - address
+        - image
+        - company_id
+
+    Companies:
+      type: object
+      properties:
+        id:
+          type: int
+          description: The ID of the company.
+        name:
+          type: string
+          description: The name of the company.
+
+    Users:
+      type: object
+      properties:
+        id:
+          type: int
+          description: The ID of the user.
+        firstname:
+          type: string
+          description: The firstname of the user.
+        lastname:
+          type: string
+          description: The lastname of the user.
+        email:
+          type: string
+          description: The email of the user.
+        phone:
+          type: string
+          description: The phone of the user.
+        company:
+          type: string
+          description: ref to the company of the user.
+
+          # Schema for ProductInput object
+
+    ProductInput:
+      type: object
+      properties:
+        title:
+          type: string
+          description: The name of the product.
+        description:
+          type: string
+          description: The description of the product.
+        image:
+          type: array
+          description: array of links to images.
+        price:
+          type: number
+          description: The price of the product.
+          format: double
+      required:
+        - title
+        - description
+        - image
+        - price
