@@ -82,7 +82,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Restaurant"
+                $ref: "#/components/schemas/Restaurants"
     get:
       summary: Returns a list of all restaurants.
       responses:
@@ -93,7 +93,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Restaurant"
+                  $ref: "#/components/schemas/Restaurants"
 
   /restaurants/{id}/products:
     get:
