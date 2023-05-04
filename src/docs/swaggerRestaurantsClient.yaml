@@ -1,3 +1,6 @@
+# todo: swagger automated doc for Restaurant route client side
+
+#this is basic example for yaml swagger doc with get request
 openapi: 3.0.1
 info:
   title: Restaurant API
@@ -44,7 +47,6 @@ paths:
         404:
           description: Restaurant not found
           content: {}
-
   /restaurants/{id}/products:
     get:
       tags:
@@ -91,6 +93,9 @@ components:
     ProductInput:
       type: object
       properties:
+        id:
+          type: integer
+          description: The restaurant's ID
         name:
           type: string
           description: The name of the product.
