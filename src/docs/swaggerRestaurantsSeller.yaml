@@ -67,34 +67,6 @@ paths:
         "204":
           description: The restaurant was deleted successfully.
 
-  /restaurants:
-    post:
-      summary: Creates a new restaurant.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/RestaurantInput"
-      responses:
-        "201":
-          description: The newly created restaurant object.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Restaurants"
-    get:
-      summary: Returns a list of all restaurants.
-      responses:
-        "200":
-          description: A JSON array of restaurant objects.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Restaurants"
-
   /restaurants/{id}/products:
     get:
       tags:
