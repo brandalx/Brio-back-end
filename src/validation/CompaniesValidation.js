@@ -1,7 +1,7 @@
 import Joi from "joi";
 
 // Joi validator for created schema
-export function validateRestaurantClient(_reqBody) {
+export function validateCompanies(_reqBody) {
   let joiSchema = Joi.object({
     title: Joi.string().min(2).max(150).required(),
     address: Joi.string().min(2).max(150).required(),
