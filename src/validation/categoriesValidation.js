@@ -1,9 +1,9 @@
 import Joi from "joi";
 // Joi validator for created schema
-export function validateCompanies(_reqBody) {
+export function validateCategories(_reqBody) {
   let joiSchema = Joi.object({
-    name: Joi.string().min(2).max(150).required(),
-    // todo: roles validation
+    categoryName: Joi.string().min(2).max(150).required(),
+    itemsId: Joi.array().required(),
   });
 
   return joiSchema.validate(_reqBody);

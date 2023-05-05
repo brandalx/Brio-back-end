@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-// Schema to make request to the Mongo DB
 
 let schema = new mongoose.Schema({
   firstname: String,
@@ -10,3 +9,5 @@ let schema = new mongoose.Schema({
   //todo: add roles
 });
 export const userSellerModel = mongoose.model("usersSeller", schema);
+
+//todo: correct model according on future requests (in future releases)

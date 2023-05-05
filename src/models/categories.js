@@ -1,10 +1,9 @@
 import mongoose from "mongoose";
-// Schema to make request to the Mongo DB
 
 let schema = new mongoose.Schema({
-  name: String,
-  // todo: add roles
+  categoryName: String,
+  itemsId: Array,
 });
-export const companiesModel = mongoose.model("companies", schema);
+export const categoriesModel = mongoose.model("categories", schema);
 
 //todo: correct model according on future requests (in future releases)

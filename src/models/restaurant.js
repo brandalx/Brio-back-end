@@ -10,3 +10,5 @@ let schema = new mongoose.Schema({
   company: String,
 });
 export const restaurantClientModel = mongoose.model("restaurants", schema);
+
+//todo: correct model according on future requests (in future releases)

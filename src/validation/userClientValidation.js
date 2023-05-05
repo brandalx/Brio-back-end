@@ -22,3 +22,5 @@ export function validateUserClient(_reqBody) {
   });
   return joiSchema.validate(_reqBody);
 }
+
+//todo: correct validation according on future requests (in future releases)
