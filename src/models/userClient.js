@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema({
+const userClientSchema = new mongoose.Schema({
   id: {
     type: Number,
     unique: true,
@@ -95,4 +95,4 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-export const UsersModel = mongoose.model("users", userSchema);
+export const UserClientModel = mongoose.model("users", userClientSchema);
