@@ -1,32 +1,24 @@
 import mongoose from "mongoose";
 
 const userClientSchema = new mongoose.Schema({
-  id: {
-    type: Number,
-    unique: true,
-  },
-  firstname: {
-    type: String,
-  },
-  lastname: {
-    type: String,
-  },
+  firstname: String,
+
+  lastname: String,
+
   email: {
     type: String,
 
     unique: true,
   },
-  birthdate: {
-    type: Date,
-  },
+  birthdate: Date,
+
   nickname: {
     type: String,
     unique: true,
   },
   avatar: String,
-  password: {
-    type: String,
-  },
+  password: String,
+
   cart: {
     type: [
       {
