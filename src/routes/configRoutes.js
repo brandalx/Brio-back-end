@@ -1,5 +1,5 @@
 import indexRouter from "./index.js";
-import userRouter from "./users.js";
+import userRouter from "./usersSeller.js";
 import { swaggerUiMiddleware } from "../docs/swaggerConfig.js";
 export const routesInit = (app) => {
   app.use("/", indexRouter);

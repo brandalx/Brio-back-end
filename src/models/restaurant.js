@@ -9,4 +9,6 @@ let schema = new mongoose.Schema({
   reviews: Object,
   company: String,
 });
-export const restaurantClientModel = mongoose.model("toys", schema);
+export const restaurantClientModel = mongoose.model("restaurants", schema);
+
+//todo: correct model according on future requests (in future releases)
