@@ -5,4 +5,4 @@ let schema = new mongoose.Schema({
   name: String,
   // todo: add roles
 });
-export const companiesModel = mongoose.model("toys", schema);
+export const companiesModel = mongoose.model("companies", schema);
