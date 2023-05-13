@@ -255,6 +255,47 @@ components:
           type: string
           description: The name of the company.
 
+    Carts:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the cart.
+      products_Id:
+        type: array
+      items:
+        type: string
+      description: An array of product IDs in the cart.
+
+    Orders:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the order.
+        cart_id:
+          type: string
+          description: The reference to the cart ID associated with the order.
+        status:
+          type: string
+          enum: [ in_progress, success, canceled, waiting ]
+          description: The status of the order.
+        customer:
+          type: object
+          properties:
+            firstname:
+              type: string
+              description: The firstname of the customer.
+            lastname:
+              type: string
+              description: The lastname of the customer.
+        delivery:
+          type: object
+          properties:
+            address:
+              type: string
+              description: The delivery address for the order.
+
     Users:
       type: object
       properties:

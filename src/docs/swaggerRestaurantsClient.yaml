@@ -46,7 +46,7 @@ paths:
                 $ref: "#/components/schemas/Restaurants"
         404:
           description: Restaurant not found
-          content: {}
+          content: { }
   /restaurants/{id}/products:
     get:
       tags:
@@ -86,6 +86,66 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Restaurants"
+
+  /orders/:
+    get:
+      tags:
+        - Restaurant Client Side
+      summary: Get all orders
+      responses:
+        '200':
+          description: A list of all orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+
+  /orders/{id}:
+    get:
+      tags:
+        - Restaurant Client Side
+      summary: Get order by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the order
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The order with the specified ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          description: The specified order was not found
+
+/orders/:
+  post:
+    tags:
+      - Restaurant Client Side
+    summary: Create a new order
+    requestBody:
+      description: The order details
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/OrderInput'
+    responses:
+      '200':
+        description: The created order
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      '400':
+        description: Invalid request payload
+
 
 components:
   schemas:
