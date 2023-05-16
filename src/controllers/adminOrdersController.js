@@ -1,6 +1,6 @@
 import {ordersModel} from "../models/orders.js";
 
-const adminOrdersCollection = {
+const adminOrdersController = {
     async getAllOrders(req, res) {
         try {
             const orders = await ordersModel.find().populate('cartId');
@@ -12,4 +12,4 @@ const adminOrdersCollection = {
     }
 };
 
-export default adminOrdersCollection;
+export default adminOrdersController;
