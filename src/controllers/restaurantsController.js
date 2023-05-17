@@ -12,11 +12,27 @@ const restaurantController = {
 
   async getRestaurantById(req, res) {
     let idParams = req.params.id;
-    console.log(idParams);
+
     try {
       let data = await restaurantClientModel.findById({ _id: idParams });
       if (data) {
         res.json(data);
+      } else {
+        res.status(404).json({ error: "Restaurant not found" });
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ error: err });
+    }
+  },
+  async getRestaurantProducts(req, res) {
+    let idParams = req.params.id;
+
+    try {
+      let restaurant = await restaurantClientModel.findById(idParams);
+      if (restaurant) {
+        let data = restaurant.products;
+        res.json({ products: data });
       } else {
         res.status(404).json({ error: "Restaurant not found" });
       }

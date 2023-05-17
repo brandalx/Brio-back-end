@@ -8,6 +8,7 @@ let schema = new mongoose.Schema({
   image: String,
   reviews: Object,
   company: String,
+  products: Array,
 });
 export const restaurantClientModel = mongoose.model("restaurants", schema);
 
