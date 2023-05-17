@@ -1,10 +1,7 @@
 import { Router } from "express";
+import categoriesController from "../controllers/categoriesControllers.js";
 
 const router = Router();
-router.get("/", async (req, res) => {
-  res.json({
-    msg: "categories of Brio :)",
-  });
-});
+router.get("/", categoriesController.getAllCategories);
 
 export default router;
