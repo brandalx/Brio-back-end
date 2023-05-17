@@ -9,7 +9,7 @@ const categoriesController = {
       return res.status(502).json({ err });
     }
   },
-  async getAllCategoryById(req, res) {
+  async getCategoryById(req, res) {
     let idParams = req.params.id;
     console.log(idParams);
     try {
