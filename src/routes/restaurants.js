@@ -1,10 +1,7 @@
 import { Router } from "express";
+import restaurantController from "../controllers/restaurantsController.js";
 
 const router = Router();
-router.get("/", async (req, res) => {
-  res.json({
-    msg: "restaurants of Brio :)",
-  });
-});
+router.get("/", restaurantController.getAllRestaurants);
 
 export default router;
