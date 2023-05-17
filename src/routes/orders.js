@@ -1,10 +1,7 @@
 import { Router } from "express";
+import ordersController from "../controllers/ordersController.js";
 
 const router = Router();
-router.get("/", async (req, res) => {
-  res.json({
-    msg: "orders of Brio :)",
-  });
-});
+router.get("/", ordersController.getAllOrders);
 
 export default router;
