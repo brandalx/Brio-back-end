@@ -1,13 +1,13 @@
 import mongoose from "mongoose";
 
 let schema = new mongoose.Schema({
-  id:Number,
+  id: Number,
   title: String,
   description: String,
   image: Array,
   price: Number,
   ingredients: Array,
-  nutritionals : Array,
+  nutritionals: Array,
   categoryId: Number,
   restaurantRef: Number,
 });

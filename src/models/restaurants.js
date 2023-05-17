@@ -7,8 +7,12 @@ const restaurantSchema = new mongoose.Schema({
   location: String,
   image: String,
   reviews: Object,
-  company: { type: mongoose.Schema.Types.ObjectId, ref: "companies", unique: true },
-  products: [{ type: mongoose.Schema.Types.ObjectId, ref: "products" }]
+  company: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "companies",
+    unique: true,
+  },
+  products: [{ type: mongoose.Schema.Types.ObjectId, ref: "products" }],
 });
 
 const Restaurants = mongoose.model("Restaurants", restaurantSchema);
