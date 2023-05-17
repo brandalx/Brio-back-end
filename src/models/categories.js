@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 let schema = new mongoose.Schema({
+  _id: String,
   categoryName: String,
   itemsId: Array,
 });

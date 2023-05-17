@@ -9,6 +9,21 @@ const categoriesController = {
       return res.status(502).json({ err });
     }
   },
+  async getAllCategoryById(req, res) {
+    let idParams = req.params.id;
+    console.log(idParams);
+    try {
+      let data = await categoriesModel.findById({ _id: idParams });
+      if (data) {
+        res.json(data);
+      } else {
+        res.status(404).json({ error: "Category not found" });
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ error: err });
+    }
+  },
 };
 
 export default categoriesController;
