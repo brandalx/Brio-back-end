@@ -37,5 +37,21 @@ const usersController = {
       res.status(502).json({ error: err });
     }
   },
+  async getUserAddress(req, res) {
+    let idParams = req.params.id;
+
+    try {
+      let user = await UserClientModel.findById(idParams);
+      if (user) {
+        let data = user.address;
+        res.json({ cart: data });
+      } else {
+        res.status(404).json({ error: "Address data not found" });
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ error: err });
+    }
+  },
 };
 export default usersController;

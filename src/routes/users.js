@@ -6,5 +6,6 @@ const router = express.Router();
 router.get("/", usersController.getUsers);
 router.get("/:id", usersController.getUserById);
 router.get("/:id/cart", usersController.getUserCart);
+router.get("/:id/address", usersController.getUserAddress);
 
 export default router;
