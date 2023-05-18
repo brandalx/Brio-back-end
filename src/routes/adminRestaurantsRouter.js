@@ -4,13 +4,13 @@ import adminRestaurantsController from "../controllers/adminRestaurantsControlle
 const router = express.Router();
 
 router.get(
-  "/admin/restaurants/:id",
+  "/:id",
   adminRestaurantsController.getRestaurantById
 );
 
 // GET /admin/restaurants/:id/menu
 router.get(
-  "/admin/restaurants/:id/menu",
+  "/:id/menu",
   adminRestaurantsController.adminGetRestaurantsMenu
 );
 

@@ -1,8 +1,8 @@
-import { restaurantClientModel } from "../models/restaurant.js";
+import Restaurants  from "../models/restaurants.js";
 const restaurantController = {
   async getAllRestaurants(req, res) {
     try {
-      let data = await restaurantClientModel.find({});
+      let data = await Restaurants.find({});
       res.json(data);
     } catch (err) {
       console.log(err);
@@ -14,7 +14,7 @@ const restaurantController = {
     let idParams = req.params.id;
 
     try {
-      let data = await restaurantClientModel.findById({ _id: idParams });
+      let data = await Restaurants.findById({ _id: idParams });
       if (data) {
         res.json(data);
       } else {
@@ -29,7 +29,7 @@ const restaurantController = {
     let idParams = req.params.id;
 
     try {
-      let restaurant = await restaurantClientModel.findById(idParams);
+      let restaurant = await Restaurants.findById(idParams);
       if (restaurant) {
         let data = restaurant.products;
         res.json({ products: data });

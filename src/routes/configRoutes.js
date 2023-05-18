@@ -5,11 +5,10 @@ import categoriesRouter from "./categories.js";
 import restaurantsRouter from "./restaurants.js";
 import productsRouter from "./products.js";
 import ordersRouter from "./orders.js";
-
 import { swaggerUiMiddleware } from "../docs/swaggerConfig.js";
-import adminProductsController from "../controllers/adminProductsController.js";
-import adminRestaurantsController from "../controllers/adminRestaurantsController.js";
-
+import adminProductsRouter from "./adminProductsRouter.js";
+import adminRestaurantsRouter from "./adminRestaurantsRouter.js";
+import adminOrdersRouter from "./adminOrdersRouter.js";
 export const routesInit = (app) => {
 
 //user routes
@@ -21,17 +20,9 @@ export const routesInit = (app) => {
   app.use("/orders", ordersRouter);
 
 // admin restaurants routes
-  app.get(
-    "/getRestaurantById/:id",
-    adminRestaurantsController.getRestaurantById
-  );
-  app.get(
-    "/adminGetRestaurantsMenu/:id",
-    adminRestaurantsController.adminGetRestaurantsMenu
-  );
-  app.get("/getAllOrders", adminProductsController.getAllOrders);
-  app.get("/getProductById/:id", adminProductsController.getProductById);
-  app.get("/getOrderById/:id", adminProductsController.getOrderById);
+  app.use("/admin/restaurants", adminRestaurantsRouter);
+  app.use("/admin/products", adminProductsRouter);
+  app.use("/admin/orders", adminOrdersRouter); // Исправлено на adminOrdersRouter
 
   // Swagger API documentation
   app.use("/api-docs", swaggerUiMiddleware);
