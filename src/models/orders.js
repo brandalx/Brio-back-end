@@ -1,19 +1,24 @@
 import mongoose from "mongoose";
 
 let schema = new mongoose.Schema({
-  id: String,
-  cartId: { type: mongoose.Schema.Types.ObjectId, ref: "Carts" },
-  status: {
-    type: String,
-    enum: ["in_progress", "success", "canceled", "waiting"],
-  },
-  customer: {
-    firstname: String,
-    lastname: String,
-  },
-  delivery: {
-    address: String,
-  },
+  cart_id: Number,
+  status: String,
+  customer: [
+    {
+      firstname: String,
+      lastname: String,
+    },
+  ],
+  delivery: [
+    {
+      country: String,
+      state: String,
+      city: String,
+      address1: String,
+      address2: String,
+    },
+  ],
 });
-
 export const ordersModel = mongoose.model("orders", schema);
+
+//todo: correct model according on future requests (in future releases)
