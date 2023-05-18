@@ -2,7 +2,7 @@ import { ordersModel } from "../models/orders.js";
 const adminOrdersController = {
     async getAllOrders(req, res) {
         try {
-            const orders = await ordersModel.find().populate("cartId");
+            const orders = await ordersModel.find().populate("_id");
             res.json(orders);
         } catch (err) {
             console.log(err);
@@ -14,7 +14,7 @@ const adminOrdersController = {
         const { id } = req.params;
 
         try {
-            const order = await ordersModel.findById(id).populate("cartId");
+            const order = await ordersModel.findById(id).populate("_id");
             if (!order) {
                 return res.status(404).json({ error: "Order not found" });
             }

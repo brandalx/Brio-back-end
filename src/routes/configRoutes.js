@@ -8,6 +8,7 @@ import ordersRouter from "./orders.js";
 import { swaggerUiMiddleware } from "../docs/swaggerConfig.js";
 import adminProductsRouter from "./adminProductsRouter.js";
 import adminRestaurantsRouter from "./adminRestaurantsRouter.js";
+import adminOrdersRouter from "./adminOrdersRouter.js";
 export const routesInit = (app) => {
 
 //user routes
@@ -21,7 +22,7 @@ export const routesInit = (app) => {
 // admin restaurants routes
   app.use("/admin/restaurants", adminRestaurantsRouter);
   app.use("/admin/products", adminProductsRouter);
-  app.use("/admin/orders", adminProductsRouter);
+  app.use("/admin/orders", adminOrdersRouter); // Исправлено на adminOrdersRouter
 
   // Swagger API documentation
   app.use("/api-docs", swaggerUiMiddleware);

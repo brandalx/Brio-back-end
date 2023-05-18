@@ -18,9 +18,9 @@ const adminRestaurantsController = {
   async adminGetRestaurantsMenu(req, res) {
     try {
       const { id } = req.params;
-      const restaurant = await Restaurants.findById(id).populate("products");
+      const restaurant = await Restaurants.findById(id);
       if (!restaurant) {
-        return res.status(404).json({ message: "Restaurant not found" });
+        return res.status(404).json({ message: "Restaurant menu not found" });
       }
       const menu = restaurant.products;
       res.json(menu);

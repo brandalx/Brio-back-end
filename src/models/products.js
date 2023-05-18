@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 let schema = new mongoose.Schema({
-  _id: String,
   title: String,
   description: String,
   image: Array,
