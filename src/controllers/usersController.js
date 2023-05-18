@@ -69,5 +69,21 @@ const usersController = {
       res.status(502).json({ error: err });
     }
   },
+  async getUserOrders(req, res) {
+    let idParams = req.params.id;
+
+    try {
+      let user = await UserClientModel.findById(idParams);
+      if (user) {
+        let data = user.orders;
+        res.json({ orders: data });
+      } else {
+        res.status(404).json({ error: "Orders data not found" });
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ error: err });
+    }
+  },
 };
 export default usersController;
