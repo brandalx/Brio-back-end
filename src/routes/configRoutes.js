@@ -16,7 +16,7 @@ export const routesInit = (app) => {
   app.use("/orders", ordersRouter);
 
   // here will go all /admin routers
-
+  //test
   //here will go all swagger atomated docs
   app.use("/api-docs", swaggerUiMiddleware);
   app.use((req, res) => {
