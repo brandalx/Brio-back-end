@@ -11,7 +11,7 @@ const categoriesController = {
   },
   async getCategoryById(req, res) {
     let idParams = req.params.id;
-    console.log(idParams);
+
     try {
       let data = await categoriesModel.findById({ _id: idParams });
       if (data) {

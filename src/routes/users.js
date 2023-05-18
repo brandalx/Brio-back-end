@@ -4,5 +4,6 @@ import usersController from "../controllers/usersController.js";
 const router = express.Router();
 // For each route there is a call to the controller that implements the required logic
 router.get("/", usersController.getUsers);
+router.get("/:id", usersController.getUserById);
 
 export default router;
