@@ -53,5 +53,21 @@ const usersController = {
       res.status(502).json({ error: err });
     }
   },
+  async getUserCreditData(req, res) {
+    let idParams = req.params.id;
+
+    try {
+      let user = await UserClientModel.findById(idParams);
+      if (user) {
+        let data = user.creditdata;
+        res.json({ creditdata: data });
+      } else {
+        res.status(404).json({ error: "Address data not found" });
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ error: err });
+    }
+  },
 };
 export default usersController;

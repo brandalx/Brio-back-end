@@ -7,5 +7,6 @@ router.get("/", usersController.getUsers);
 router.get("/:id", usersController.getUserById);
 router.get("/:id/cart", usersController.getUserCart);
 router.get("/:id/address", usersController.getUserAddress);
+router.get("/:id/credit-data", usersController.getUserCreditData);
 
 export default router;
