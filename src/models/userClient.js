@@ -39,19 +39,23 @@ const userClientSchema = new mongoose.Schema({
       rating: Number,
     },
   ],
-  address: {
-    country: String,
-    state: String,
-    city: String,
-    address1: String,
-    address2: String,
-  },
-  creditdata: {
-    paymentMethod: String,
-    cardNumber: String,
-    expirationDate: String,
-    securityCode: String,
-  },
+  address: [
+    {
+      country: String,
+      state: String,
+      city: String,
+      address1: String,
+      address2: String,
+    },
+  ],
+  creditdata: [
+    {
+      paymentMethod: String,
+      cardNumber: String,
+      expirationDate: String,
+      securityCode: String,
+    },
+  ],
   orders: [
     {
       orderId: Number,
