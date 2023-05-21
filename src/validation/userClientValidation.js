@@ -12,7 +12,7 @@ export function validateUserClient(_reqBody) {
     cart: Joi.array()
       .items(
         Joi.object({
-          productId: Joi.number().required(),
+          productId: Joi.string().required(),
           productAmount: Joi.number().required(),
         })
       )
