@@ -22,7 +22,7 @@ const userClientSchema = new mongoose.Schema({
   cart: {
     type: [
       {
-        productId: Number,
+        productId: String,
         productAmount: Number,
       },
     ],
