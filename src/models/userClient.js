@@ -39,19 +39,23 @@ const userClientSchema = new mongoose.Schema({
       rating: Number,
     },
   ],
-  address: {
-    country: String,
-    state: String,
-    city: String,
-    address1: String,
-    address2: String,
-  },
-  creditdata: {
-    paymentMethod: String,
-    cardNumber: String,
-    expirationDate: String,
-    securityCode: String,
-  },
+  address: [
+    {
+      country: String,
+      state: String,
+      city: String,
+      address1: String,
+      address2: String,
+    },
+  ],
+  creditdata: [
+    {
+      paymentMethod: String,
+      cardNumber: String,
+      expirationDate: String,
+      securityCode: String,
+    },
+  ],
   orders: [
     {
       orderId: Number,
@@ -89,4 +93,4 @@ const userClientSchema = new mongoose.Schema({
 
 export const UserClientModel = mongoose.model("users", userClientSchema);
 
-//todo: correct model according on future requests (in future releases)
+//todo: correct model according on future requests (in future releases)
