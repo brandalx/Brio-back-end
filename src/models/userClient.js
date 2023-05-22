@@ -22,7 +22,7 @@ const userClientSchema = new mongoose.Schema({
   cart: {
     type: [
       {
-        productId: Number,
+        productId: String,
         productAmount: Number,
       },
     ],
@@ -66,10 +66,14 @@ const userClientSchema = new mongoose.Schema({
         type: String,
         enum: ["placed", "prepared", "out", "delivered", "cancelled"],
       },
-      totalAmount: Number,
+
       paymentSummary: {
+        subtotal: Number,
         couponCode: String,
         tips: Number,
+        shipping: Number,
+        discount: Number,
+        totalAmount: Number,
       },
     },
   ],

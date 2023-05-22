@@ -6,18 +6,17 @@ export function validateUserClient(_reqBody) {
     lastname: Joi.string().min(2).max(150).required(),
     email: Joi.string().email().min(2).max(150).required(),
     birthdate: Joi.date().required(),
-    nickname: Joi.string().min(2).max(150).optional().allow(null, ""),
-    avatar: Joi.string().min(2).max(150).optional().allow(null, ""),
+    nickname: Joi.string().min(2).max(150).allow(null).optional(),
+    avatar: Joi.string().min(2).max(150).allow(null).optional(),
     password: Joi.string().min(2).max(150).required(),
     cart: Joi.array()
       .items(
         Joi.object({
-          productId: Joi.number().required(),
+          productId: Joi.string().required(),
           productAmount: Joi.number().required(),
         })
       )
-      .optional()
-      .allow(null),
+      .optional(),
     comments: Joi.array()
       .items(
         Joi.object({
@@ -25,8 +24,7 @@ export function validateUserClient(_reqBody) {
           date: Joi.date().required(),
         })
       )
-      .optional()
-      .allow(null),
+      .optional(),
     rate: Joi.array()
       .items(
         Joi.object({
@@ -34,8 +32,7 @@ export function validateUserClient(_reqBody) {
           rating: Joi.number().required(),
         })
       )
-      .optional()
-      .allow(null),
+      .optional(),
     address: Joi.array()
       .items(
         Joi.object({
@@ -43,11 +40,10 @@ export function validateUserClient(_reqBody) {
           state: Joi.string().min(2).max(150).required(),
           city: Joi.string().min(2).max(150).required(),
           address1: Joi.string().min(2).max(150).required(),
-          address2: Joi.string().min(2).max(150).optional().allow(null, ""),
+          address2: Joi.string().min(2).max(150).allow(null).optional(),
         })
       )
-      .optional()
-      .allow(null),
+      .optional(),
     creditdata: Joi.array()
       .items(
         Joi.object({
@@ -57,8 +53,7 @@ export function validateUserClient(_reqBody) {
           securityCode: Joi.string().min(2).max(150).required(),
         })
       )
-      .optional()
-      .allow(null),
+      .optional(),
     orders: Joi.array()
       .items(
         Joi.object({
@@ -69,16 +64,18 @@ export function validateUserClient(_reqBody) {
           status: Joi.string()
             .valid("placed", "prepared", "out", "delivered", "cancelled")
             .required(),
-          totalAmount: Joi.number().required(),
           paymentSummary: Joi.object({
-            couponCode: Joi.string().min(2).max(150).optional().allow(null, ""),
+            couponCode: Joi.string().min(2).max(150).allow(null).optional(),
+            subtotal: Joi.number().required(),
             tips: Joi.number().optional().allow(null),
-          }).optional(),
+            shipping: Joi.number().required(),
+            discount: Joi.number().required(),
+            totalAmount: Joi.number().required(),
+          }).required(),
         })
       )
-      .optional()
-      .allow(null),
-    role: Joi.string().min(2).max(150).optional().default("USER"),
+      .optional(),
+    role: Joi.string().min(2).max(150).default("USER").optional(),
     favorites: Joi.array()
       .items(
         Joi.object({
@@ -86,8 +83,7 @@ export function validateUserClient(_reqBody) {
           dishes: Joi.array().items(Joi.number().required()).required(),
         })
       )
-      .optional()
-      .allow(null),
+      .optional(),
     phone: Joi.string().min(2).max(150).required(),
     emailnotifications: Joi.boolean().optional(),
     date_created: Joi.date().default(Date.now),
