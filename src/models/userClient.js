@@ -66,10 +66,13 @@ const userClientSchema = new mongoose.Schema({
         type: String,
         enum: ["placed", "prepared", "out", "delivered", "cancelled"],
       },
-      totalAmount: Number,
+
       paymentSummary: {
         couponCode: String,
         tips: Number,
+        shipping: Number,
+        discount: Number,
+        totalAmount: Number,
       },
     },
   ],
