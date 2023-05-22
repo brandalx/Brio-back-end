@@ -66,6 +66,7 @@ export function validateUserClient(_reqBody) {
             .required(),
           paymentSummary: Joi.object({
             couponCode: Joi.string().min(2).max(150).allow(null).optional(),
+            subtotal: Joi.number().required(),
             tips: Joi.number().optional().allow(null),
             shipping: Joi.number().required(),
             discount: Joi.number().required(),

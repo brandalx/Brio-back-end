@@ -68,6 +68,7 @@ const userClientSchema = new mongoose.Schema({
       },
 
       paymentSummary: {
+        subtotal: Number,
         couponCode: String,
         tips: Number,
         shipping: Number,
