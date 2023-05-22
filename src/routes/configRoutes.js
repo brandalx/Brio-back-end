@@ -9,9 +9,10 @@ import { swaggerUiMiddleware } from "../docs/swaggerConfig.js";
 import adminProductsRouter from "./adminProductsRouter.js";
 import adminRestaurantsRouter from "./adminRestaurantsRouter.js";
 import adminOrdersRouter from "./adminOrdersRouter.js";
-export const routesInit = (app) => {
+// Удалите импорт categories
 
-//user routes
+export const routesInit = (app) => {
+  // User routes
   app.use("/", indexRouter);
   app.use("/users", userRouter);
   app.use("/categories", categoriesRouter);
@@ -19,11 +20,11 @@ export const routesInit = (app) => {
   app.use("/products", productsRouter);
   app.use("/orders", ordersRouter);
 
-// admin restaurants routes
+  // Admin restaurants routes
   app.use("/admin/restaurants", adminRestaurantsRouter);
   app.use("/admin/products", adminProductsRouter);
-  app.use("/admin/orders", adminOrdersRouter); // Исправлено на adminOrdersRouter
-
+  app.use("/admin/orders", adminOrdersRouter);
+  app.post("/admin/categories/:categoryName", categoriesRouter);
   // Swagger API documentation
   app.use("/api-docs", swaggerUiMiddleware);
 

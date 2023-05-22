@@ -24,6 +24,17 @@ const categoriesController = {
       res.status(502).json({ error: err });
     }
   },
+  async createCategory(req, res) {
+    const { categoryName, itemsId } = req.body;
+
+    try {
+      const newCategory = await categoriesModel.create({ categoryName, itemsId });
+      res.json(newCategory);
+    } catch (err) {
+      console.error(err);
+      res.status(502).json({ error: err });
+    }
+  },
 };
 
 export default categoriesController;

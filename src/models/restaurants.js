@@ -6,6 +6,10 @@ const restaurantSchema = new mongoose.Schema({
   location: String,
   image: String,
   reviews: Object,
+  tags: Object,
+  description: String,
+  minprice: Number,
+  time: String,
   company: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "companies",
