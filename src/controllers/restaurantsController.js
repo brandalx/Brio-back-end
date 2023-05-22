@@ -1,4 +1,4 @@
-import Restaurants  from "../models/restaurants.js";
+import Restaurants from "../models/restaurants.js";
 const restaurantController = {
   async getAllRestaurants(req, res) {
     try {

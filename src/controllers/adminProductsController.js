@@ -1,4 +1,5 @@
-import {productsModel} from "../models/products.js";
+import { productsModel } from "../models/products.js";
+import { ordersModel } from "../models/orders.js";
 
 const adminProductsController = {
   async getProductById(req, res) {
@@ -13,6 +14,15 @@ const adminProductsController = {
     } catch (err) {
       console.log(err);
       res.status(500).json({ error: "Server error" });
+    }
+  },
+  async getAllProducts(req, res) {
+    try {
+      const products = await productsModel.find().populate("categoryName");
+      res.json(products);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ err });
     }
   },
 };

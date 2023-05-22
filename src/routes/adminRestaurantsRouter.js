@@ -3,15 +3,9 @@ import adminRestaurantsController from "../controllers/adminRestaurantsControlle
 
 const router = express.Router();
 
-router.get(
-  "/:id",
-  adminRestaurantsController.getRestaurantById
-);
+router.get("/:id", adminRestaurantsController.getRestaurantById);
 
 // GET /admin/restaurants/:id/menu
-router.get(
-  "/:id/menu",
-  adminRestaurantsController.adminGetRestaurantsMenu
-);
+router.get("/:id/menu", adminRestaurantsController.adminGetRestaurantsMenu);
 
 export default router;

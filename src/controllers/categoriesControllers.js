@@ -28,7 +28,10 @@ const categoriesController = {
     const { categoryName, itemsId } = req.body;
 
     try {
-      const newCategory = await categoriesModel.create({ categoryName, itemsId });
+      const newCategory = await categoriesModel.create({
+        categoryName,
+        itemsId,
+      });
       res.json(newCategory);
     } catch (err) {
       console.error(err);

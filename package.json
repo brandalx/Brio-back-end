@@ -19,8 +19,9 @@
   },
   "homepage": "https://github.com/Okeanid-ISR/Brio-back-end.git#readme",
   "devDependencies": {
+    "eslint": "^8.41.0",
     "nodemon": "^2.0.20",
-    "prettier": "^2.8.4"
+    "prettier": "^2.8.8"
   },
   "env": {
     "es6": true,
