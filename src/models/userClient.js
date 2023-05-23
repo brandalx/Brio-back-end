@@ -50,7 +50,10 @@ const userClientSchema = new mongoose.Schema({
   ],
   creditdata: [
     {
-      paymentMethod: String,
+      paymentMethod: {
+        type: String,
+        default: "Credit Card",
+      },
       cardNumber: String,
       expirationDate: String,
       securityCode: String,

@@ -138,11 +138,6 @@ export function validateUserClientAddress(_reqBody) {
 
 export function validateUserClientCard(_reqBody) {
   const joiSchema = Joi.object({
-    paymentMethod: Joi.string()
-      .min(2)
-      .max(150)
-      .default("Credit Card")
-      .required(),
     cardType: Joi.string().min(2).max(150).required(),
     cardNumber: Joi.string().min(2).max(150).required(),
     expirationDate: Joi.string().min(2).max(150).required(),
