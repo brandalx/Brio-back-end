@@ -54,6 +54,11 @@ const userClientSchema = new mongoose.Schema({
       cardNumber: String,
       expirationDate: String,
       securityCode: String,
+      cardType: {
+        type: String,
+        default: "visa",
+      },
+      cardholder: String,
     },
   ],
   orders: [

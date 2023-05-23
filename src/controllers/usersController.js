@@ -1,6 +1,7 @@
 import { UserClientModel } from "../models/userClient.js";
 import {
   validateUserClientAddress,
+  validateUserClientCard,
   validateUserClientData,
 } from "../validation/userClientValidation.js";
 
@@ -150,6 +151,50 @@ const usersController = {
       await user.save();
 
       console.log(user.address);
+      res.status(201).json({ msg: true });
+    } catch (err) {
+      console.log(err);
+      return res.status(502).json({ err });
+    }
+  },
+
+  async postUserCard(req, res) {
+    const id = req.params.id;
+
+    try {
+      let user = await UserClientModel.findOne({ _id: id });
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      // todo: pass auth middleware
+
+      let validBody = validateUserClientCard(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+
+      // Check if the same card exists in the array
+      const existingCard = user.creditdata.find((card) => {
+        // Compare the individual card fields
+        return (
+          card.paymentMethod === req.body.paymentMethod &&
+          card.cardType === req.body.cardType &&
+          card.cardNumber === req.body.cardNumber &&
+          card.expirationDate === req.body.expirationDate &&
+          card.cardholder === req.body.cardholder &&
+          card.securityCode === req.body.securityCode
+        );
+      });
+
+      if (existingCard) {
+        return res.status(400).json({ err: "Card already exists" });
+      }
+
+      user.creditdata.push(req.body);
+      await user.save();
+
+      console.log(user.creditdata);
       res.status(201).json({ msg: true });
     } catch (err) {
       console.log(err);

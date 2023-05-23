@@ -12,5 +12,6 @@ router.get("/:id/credit-data", usersController.getUserCreditData);
 router.get("/:id/orders", usersController.getUserOrders);
 router.put("/:id/putuserdata", usersController.putUserData);
 router.post("/:id/postuseraddress", usersController.postUserAddress);
+router.post("/:id/postusercard", usersController.postUserCard);
 
 export default router;
