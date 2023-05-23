@@ -106,3 +106,14 @@ export function validateUserClient(_reqBody) {
 
   return joiSchema.validate(_reqBody);
 }
+
+export function validateUserClientData(_reqBody) {
+  const joiSchema = Joi.object({
+    firstname: Joi.string().min(2).max(150).required(),
+    lastname: Joi.string().min(2).max(150).required(),
+    email: Joi.string().email().min(2).max(150).required(),
+    phone: Joi.string().min(2).max(150).required(),
+  });
+
+  return joiSchema.validate(_reqBody);
+}

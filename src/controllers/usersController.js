@@ -1,5 +1,8 @@
 import { UserClientModel } from "../models/userClient.js";
-import { validateUserClient } from "../validation/userClientValidation.js";
+import {
+  validateUserClient,
+  validateUserClientData,
+} from "../validation/userClientValidation.js";
 
 const usersController = {
   getUsers(req, res) {
@@ -98,26 +101,14 @@ const usersController = {
 
       // todo: pass auth middleware
 
-      const { firstname, lastname, phone, email } = req.body;
-      user.firstname = firstname;
-      user.lastname = lastname;
-      user.phone = phone;
-      user.email = email;
-
-      console.log(user);
-
-      let validBody = validateUserClient(user);
+      let validBody = validateUserClientData(req.body);
       if (validBody.error) {
         return res.status(400).json(validBody.error.details);
       }
 
-      const updatedUser = await UserClientModel.findByIdAndUpdate(id, user, {
-        new: true,
-      });
+      let data = await UserClientModel.updateOne({ _id: id }, req.body);
 
-      // console.log(updatedUser);
-
-      return res.json(updatedUser);
+      return res.json(data);
     } catch (err) {
       console.log(err);
       return res.status(502).json({ err });
