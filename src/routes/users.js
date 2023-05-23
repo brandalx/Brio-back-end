@@ -8,7 +8,9 @@ router.get("/:id", usersController.getUserById);
 router.get("/:id/cart", usersController.getUserCart);
 router.get("/:id/address", usersController.getUserAddress);
 router.get("/:id/credit-data", usersController.getUserCreditData);
+
 router.get("/:id/orders", usersController.getUserOrders);
 router.put("/:id/putuserdata", usersController.putUserData);
+router.post("/:id/postuseraddress", usersController.postUserAddress);
 
 export default router;

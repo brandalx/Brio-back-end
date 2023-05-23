@@ -64,7 +64,6 @@ const userClientSchema = new mongoose.Schema({
       creationTime: String,
       status: {
         type: String,
-        enum: ["placed", "prepared", "out", "delivered", "cancelled"],
       },
 
       paymentSummary: {
