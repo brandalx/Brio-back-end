@@ -1,4 +1,5 @@
 import { UserClientModel } from "../models/userClient.js";
+import { validateUserClient } from "../validation/userClientValidation.js";
 
 const usersController = {
   getUsers(req, res) {
@@ -83,6 +84,43 @@ const usersController = {
     } catch (err) {
       console.log(err);
       res.status(502).json({ error: err });
+    }
+  },
+
+  async putUserData(req, res) {
+    const id = req.params.id;
+
+    try {
+      let user = await UserClientModel.findOne({ _id: id });
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      // todo: pass auth middleware
+
+      const { firstname, lastname, phone, email } = req.body;
+      user.firstname = firstname;
+      user.lastname = lastname;
+      user.phone = phone;
+      user.email = email;
+
+      console.log(user);
+
+      let validBody = validateUserClient(user);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+
+      const updatedUser = await UserClientModel.findByIdAndUpdate(id, user, {
+        new: true,
+      });
+
+      // console.log(updatedUser);
+
+      return res.json(updatedUser);
+    } catch (err) {
+      console.log(err);
+      return res.status(502).json({ err });
     }
   },
 };
