@@ -7,7 +7,7 @@ let schema = new mongoose.Schema({
   price: Number,
   ingredients: Array,
   nutritionals: Array,
-  categoryId: Number,
+  categoryName: String,
   restaurantRef: Number,
 });
 export const productsModel = mongoose.model("products", schema);
