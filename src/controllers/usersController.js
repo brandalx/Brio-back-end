@@ -150,7 +150,7 @@ const usersController = {
       await user.save();
 
       console.log(user.address);
-      return res.json(user.address);
+      res.status(201).json({ msg: true });
     } catch (err) {
       console.log(err);
       return res.status(502).json({ err });
