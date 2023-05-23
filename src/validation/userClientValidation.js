@@ -12,17 +12,19 @@ export function validateUserClient(_reqBody) {
     cart: Joi.array()
       .items(
         Joi.object({
+          _id: Joi.any().strip(), // Exclude the _id property from validation
           productId: Joi.string().required(),
           productAmount: Joi.number().required(),
-        })
+        }).unknown(true) // Allow unknown properties within cart objects
       )
       .optional(),
     comments: Joi.array()
       .items(
         Joi.object({
-          comment: Joi.string().required(),
-          date: Joi.date().required(),
-        })
+          _id: Joi.any().strip(),
+          comment: Joi.string().allow(null).optional(),
+          date: Joi.date().allow(null).optional(),
+        }).unknown(true)
       )
       .optional(),
     rate: Joi.array()
@@ -30,7 +32,7 @@ export function validateUserClient(_reqBody) {
         Joi.object({
           blogId: Joi.number().required(),
           rating: Joi.number().required(),
-        })
+        }).unknown(true)
       )
       .optional(),
     address: Joi.array()
@@ -41,7 +43,7 @@ export function validateUserClient(_reqBody) {
           city: Joi.string().min(2).max(150).required(),
           address1: Joi.string().min(2).max(150).required(),
           address2: Joi.string().min(2).max(150).allow(null).optional(),
-        })
+        }).unknown(true)
       )
       .optional(),
     creditdata: Joi.array()
@@ -51,7 +53,7 @@ export function validateUserClient(_reqBody) {
           cardNumber: Joi.string().min(2).max(150).required(),
           expirationDate: Joi.string().min(2).max(150).required(),
           securityCode: Joi.string().min(2).max(150).required(),
-        })
+        }).unknown(true)
       )
       .optional(),
     orders: Joi.array()
@@ -62,17 +64,28 @@ export function validateUserClient(_reqBody) {
           creationDate: Joi.date().required(),
           creationTime: Joi.string().min(2).max(150).required(),
           status: Joi.string()
-            .valid("placed", "prepared", "out", "delivered", "cancelled")
+            .valid(
+              "In progress",
+              "Completed",
+              "Canceled",
+              "Suspended",
+              "cancelled"
+            )
             .required(),
           paymentSummary: Joi.object({
-            couponCode: Joi.string().min(2).max(150).allow(null).optional(),
+            couponCode: Joi.string()
+              .allow(null)
+              .allow("")
+              .min(2)
+              .max(150)
+              .optional(),
             subtotal: Joi.number().required(),
             tips: Joi.number().optional().allow(null),
             shipping: Joi.number().required(),
             discount: Joi.number().required(),
             totalAmount: Joi.number().required(),
           }).required(),
-        })
+        }).unknown(true)
       )
       .optional(),
     role: Joi.string().min(2).max(150).default("USER").optional(),
@@ -81,12 +94,38 @@ export function validateUserClient(_reqBody) {
         Joi.object({
           restaurant: Joi.string().min(2).max(150).required(),
           dishes: Joi.array().items(Joi.number().required()).required(),
-        })
+        }).unknown(true)
       )
       .optional(),
     phone: Joi.string().min(2).max(150).required(),
     emailnotifications: Joi.boolean().optional(),
     date_created: Joi.date().default(Date.now),
+  })
+    .unknown(true)
+    .strip();
+
+  return joiSchema.validate(_reqBody);
+}
+
+export function validateUserClientData(_reqBody) {
+  const joiSchema = Joi.object({
+    firstname: Joi.string().min(2).max(150).required(),
+    lastname: Joi.string().min(2).max(150).required(),
+    email: Joi.string().email().min(2).max(150).required(),
+    phone: Joi.string().min(2).max(150).required(),
   });
+
+  return joiSchema.validate(_reqBody);
+}
+
+export function validateUserClientAddress(_reqBody) {
+  const joiSchema = Joi.object({
+    country: Joi.string().min(2).max(150).required(),
+    state: Joi.string().min(2).max(150).required(),
+    city: Joi.string().min(2).max(150).required(),
+    address1: Joi.string().min(2).max(150).required(),
+    address2: Joi.string().min(0).max(150).allow(null, " "),
+  });
+
   return joiSchema.validate(_reqBody);
 }
