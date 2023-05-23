@@ -8,7 +8,7 @@ export function validateProducts(_reqBody) {
     price: Joi.number().required(),
     ingredients: Joi.array().items(Joi.string()),
     nutritionals: Joi.array().items(Joi.string()),
-    categoryId: Joi.number().required(),
+    categoryName: Joi.string().required(),
     restaurantRef: Joi.string().required(),
   });
 
