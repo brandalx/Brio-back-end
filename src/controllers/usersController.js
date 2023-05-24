@@ -177,18 +177,13 @@ const usersController = {
       // Check if the same card exists in the array
       const existingCard = user.creditdata.find((card) => {
         // Compare the individual card fields
-        return (
-          card.paymentMethod === req.body.paymentMethod &&
-          card.cardType === req.body.cardType &&
-          card.cardNumber === req.body.cardNumber &&
-          card.expirationDate === req.body.expirationDate &&
-          card.cardholder === req.body.cardholder &&
-          card.securityCode === req.body.securityCode
-        );
+        return card.cardNumber === req.body.cardNumber;
       });
 
       if (existingCard) {
-        return res.status(400).json({ err: "Card already exists" });
+        return res
+          .status(400)
+          .json({ err: "Such payment method already exists" });
       }
 
       user.creditdata.push(req.body);
