@@ -66,7 +66,7 @@ const userClientSchema = new mongoose.Schema({
   ],
   orders: [
     {
-      orderId: Number,
+      orderId: String,
       restaurant: String,
       creationDate: Date,
       creationTime: String,
