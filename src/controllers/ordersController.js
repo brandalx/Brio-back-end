@@ -41,17 +41,17 @@ const ordersController = {
 
       // todo: pass auth middleware
 
-      let validBodyClient = validateUserOrder(req.body);
+      let validBodyClient = validateUserOrder(req.body.userdata);
       if (validBodyClient.error) {
         return res.status(400).json(validBodyClient.error.details);
       }
 
       const newOrder = {
-        restaurant: req.body.restaurant,
+        restaurant: req.body.userdata.restaurant,
         creationDate: new Date(),
         creationTime: new Date(),
-        status: req.body.status,
-        paymentSummary: req.body.paymentSummary,
+        status: req.body.userdata.status,
+        paymentSummary: req.body.userdata.paymentSummary,
       };
 
       user.orders.push(newOrder);
@@ -63,11 +63,30 @@ const ordersController = {
       const orderId = createdOrder._id.toString(); // Convert objectId to string
 
       const lastOrderIndex = user.orders.length - 1;
+      // user.orders[lastOrderIndex].orderId = orderId;
       user.orders[lastOrderIndex].orderId = orderId;
-
       await user.save();
 
       console.log(user.orders);
+
+      let lastOrder = user.orders[lastOrderIndex];
+      let products = req.body.ordersdata.products.map((item) => {
+        return {
+          productRef: item.productId,
+          amount: item.amount,
+        };
+      });
+
+      let newOrderRefs = {
+        restaurantRef: lastOrder.restaurant,
+        userRef: user._id,
+        orderedTime: lastOrder.creationTime,
+        products: products,
+      };
+      const order = new ordersModel(newOrderRefs); // Create a new instance of the ordersModel
+      order._id = orderId; // Assign the orderId as the _id field of the order document
+      let savedObject = await order.save();
+      user.orders[lastOrderIndex].orderId = savedObject._id;
       res.status(201).json({ msg: true });
     } catch (err) {
       console.log(err);
