@@ -15,6 +15,7 @@ export const routesInit = (app) => {
   // User routes
   app.use("/", indexRouter);
   app.use("/users", userRouter);
+  app.use("/getAllUsers", userRouter);
   app.use("/categories", categoriesRouter);
   app.use("/restaurants", restaurantsRouter);
   app.use("/products", productsRouter);
@@ -25,6 +26,7 @@ export const routesInit = (app) => {
   app.use("/admin/products", adminProductsRouter);
   app.use("/admin/orders", adminOrdersRouter);
   app.post("/admin/categories/:categoryName", categoriesRouter);
+  app.post("/admin/products", productsRouter);
   // Swagger API documentation
   app.use("/api-docs", swaggerUiMiddleware);
 
