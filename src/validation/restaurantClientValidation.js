@@ -1,3 +1,5 @@
+restaurantValidation;
+
 import Joi from "joi";
 
 // Joi validator for created schema
@@ -10,6 +12,7 @@ export function validateRestaurantClient(_reqBody) {
     reviews: Joi.object(),
     tags: Joi.object(),
     description: Joi.string(),
+    email: Joi.string(),
     minprice: Joi.number().integer().positive(),
     time: Joi.string(),
     company: Joi.string().min(1).max(150).required(),
