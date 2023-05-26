@@ -27,6 +27,8 @@ export const routesInit = (app) => {
   app.use("/admin/orders", adminOrdersRouter);
   app.post("/admin/categories/:categoryName", categoriesRouter);
   app.post("/admin/products", productsRouter);
+  app.post("/admin/products", productsRouter);
+  app.delete("/products", productsRouter);
   // Swagger API documentation
   app.use("/api-docs", swaggerUiMiddleware);
 
