@@ -24,6 +24,35 @@ const productsController = {
       res.status(502).json({ error: err });
     }
   },
+  async createProduct(req, res) {
+    const {
+      title,
+      description,
+      image,
+      price,
+      ingredients,
+      nutritionals,
+      categoryName,
+      restaurantRef,
+    } = req.body;
+
+    try {
+      const newProduct = await productsModel.create({
+        title,
+        description,
+        image,
+        price,
+        ingredients,
+        nutritionals,
+        categoryName,
+        restaurantRef,
+      });
+      res.json(newProduct);
+    } catch (err) {
+      console.error(err);
+      res.status(502).json({ error: err });
+    }
+  },
 };
 
 export default productsController;
