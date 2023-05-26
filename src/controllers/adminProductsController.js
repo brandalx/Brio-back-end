@@ -1,5 +1,4 @@
 import { productsModel } from "../models/products.js";
-import { ordersModel } from "../models/orders.js";
 
 const adminProductsController = {
   async getProductById(req, res) {

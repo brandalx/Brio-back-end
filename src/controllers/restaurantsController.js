@@ -9,7 +9,6 @@ const restaurantController = {
       return res.status(502).json({ err });
     }
   },
-
   async getRestaurantById(req, res) {
     let idParams = req.params.id;
 
