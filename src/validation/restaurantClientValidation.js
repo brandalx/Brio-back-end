@@ -1,3 +1,5 @@
+restaurantValidation;
+
 import Joi from "joi";
 
 // Joi validator for created schema
