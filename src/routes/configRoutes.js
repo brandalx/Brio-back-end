@@ -6,9 +6,11 @@ import restaurantsRouter from "./restaurants.js";
 import productsRouter from "./products.js";
 import ordersRouter from "./orders.js";
 import { swaggerUiMiddleware } from "../docs/swaggerConfig.js";
-import adminProductsRouter from "./adminProductsRouter.js";
-import adminRestaurantsRouter from "./adminRestaurantsRouter.js";
 import adminOrdersRouter from "./adminOrdersRouter.js";
+import adminProductsRouter from "./adminProductsRouter.js";
+import adminCategoriesRouter from "./adminCategoriesRouter.js";
+
+import adminRestaurantsRouter from "./adminRestaurantsRouter.js";
 // Удалите импорт categories
 
 export const routesInit = (app) => {
@@ -23,12 +25,10 @@ export const routesInit = (app) => {
 
   // Admin restaurants routes
   app.use("/admin/restaurants", adminRestaurantsRouter);
+  app.use("/admin/categories", adminCategoriesRouter);
   app.use("/admin/products", adminProductsRouter);
   app.use("/admin/orders", adminOrdersRouter);
-  app.post("/admin/categories/:categoryName", categoriesRouter);
-  app.post("/admin/products", productsRouter);
-  app.post("/admin/products", productsRouter);
-  app.delete("/products", productsRouter);
+
   // Swagger API documentation
   app.use("/api-docs", swaggerUiMiddleware);
 
