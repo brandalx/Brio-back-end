@@ -49,6 +49,7 @@ export function validateUserClient(_reqBody) {
     creditdata: Joi.array()
       .items(
         Joi.object({
+
           paymentMethod: Joi.string()
             .min(2)
             .max(150)
@@ -58,6 +59,7 @@ export function validateUserClient(_reqBody) {
           cardNumber: Joi.string().min(2).max(150).required(),
           expirationDate: Joi.string().min(2).max(150).required(),
           cardholder: Joi.string().min(2).max(150).required(),
+
           securityCode: Joi.string().min(2).max(150).required(),
         }).unknown(true)
       )
@@ -135,6 +137,7 @@ export function validateUserClientAddress(_reqBody) {
 
   return joiSchema.validate(_reqBody);
 }
+
 
 export function validateUserClientCard(_reqBody) {
   const joiSchema = Joi.object({

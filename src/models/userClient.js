@@ -104,4 +104,4 @@ const userClientSchema = new mongoose.Schema({
 
 export const UserClientModel = mongoose.model("users", userClientSchema);
 
-//todo: correct model according on future requests (in future releases)
+//todo: correct model according on future requests (in future releases)

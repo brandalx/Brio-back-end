@@ -17,6 +17,7 @@ export function validateOrder(order) {
   return schema.validate(order);
 }
 
+
 export function validateUserOrder(order) {
   const schema = Joi.object({
     restaurant: Joi.string().min(2).max(150).required(),
@@ -35,3 +36,4 @@ export function validateUserOrder(order) {
 
   return schema.validate(order);
 }
+
