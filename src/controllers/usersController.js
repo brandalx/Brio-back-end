@@ -3,6 +3,7 @@ import {
   validateUserClientAddress,
   validateUserClientCard,
   validateUserClientData,
+  validateUserClientCart,
 } from "../validation/userClientValidation.js";
 
 const usersController = {
@@ -196,5 +197,46 @@ const usersController = {
       return res.status(502).json({ err });
     }
   },
+  async postToCart(req, res) {
+    const id = req.params.id;
+
+    try {
+      let user = await UserClientModel.findOne({ _id: id });
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      // todo: pass auth middleware
+
+      let validBody = validateUserClientCart(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+
+      // is if the same product id exists
+      const existingProductIndex = user.cart.findIndex((cart) => {
+        // finding product
+        return cart.productId === req.body.productId;
+      });
+
+      if (existingProductIndex !== -1) {
+        // Update the existing product object in the cart array
+        user.cart[existingProductIndex] = req.body;
+        await user.save();
+        return res.status(201).json({ msg: true });
+      }
+      //if not keeping going
+
+      user.cart.push(req.body);
+      await user.save();
+
+      console.log(user.cart);
+      res.status(201).json({ msg: true });
+    } catch (err) {
+      console.log(err);
+      return res.status(502).json({ err });
+    }
+  },
 };
+
 export default usersController;

@@ -147,3 +147,12 @@ export function validateUserClientCard(_reqBody) {
 
   return joiSchema.validate(_reqBody);
 }
+
+export function validateUserClientCart(_reqBody) {
+  const joiSchema = Joi.object({
+    productId: Joi.string().required(),
+    productAmount: Joi.number().required(),
+  }).required();
+
+  return joiSchema.validate(_reqBody);
+}
