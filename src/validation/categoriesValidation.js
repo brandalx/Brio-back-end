@@ -1,12 +1,10 @@
 import Joi from "joi";
-// Joi validator for created schema
-export function validateCategories(_reqBody) {
-  let joiSchema = Joi.object({
+
+export function validateCategories(reqBody) {
+  const schema = Joi.object({
     categoryName: Joi.string().min(2).max(150).required(),
-    itemsId: Joi.array().required(),
+    itemsId: Joi.array(),
   });
 
-  return joiSchema.validate(_reqBody);
+  return schema.validate(reqBody);
 }
-
-//todo: correct validation according on future requests (in future releases)
