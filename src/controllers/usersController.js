@@ -15,6 +15,15 @@ const usersController = {
       res.status(502).json({ err });
     }
   },
+  async getAllUsers(req, res) {
+    try {
+      let data = await UserClientModel.find({});
+      res.json(data);
+    } catch (err) {
+      console.log(err);
+      return res.status(502).json({ err });
+    }
+  },
 
   async getUserById(req, res) {
     let idParams = req.params.id;
@@ -27,6 +36,7 @@ const usersController = {
       return res.status(502).json({ err });
     }
   },
+
   async getUserCart(req, res) {
     let idParams = req.params.id;
 
