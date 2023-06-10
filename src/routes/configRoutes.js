@@ -11,7 +11,7 @@ import adminProductsRouter from "./adminProductsRouter.js";
 import adminCategoriesRouter from "./adminCategoriesRouter.js";
 
 import adminRestaurantsRouter from "./adminRestaurantsRouter.js";
-// Удалите импорт categories
+import adminPromotionsRouter from "./adminPromotionsRouter.js";
 
 export const routesInit = (app) => {
   // User routes
@@ -28,6 +28,7 @@ export const routesInit = (app) => {
   app.use("/admin/categories", adminCategoriesRouter);
   app.use("/admin/products", adminProductsRouter);
   app.use("/admin/orders", adminOrdersRouter);
+  app.use("/admin/promotions", adminPromotionsRouter);
 
   // Swagger API documentation
   app.use("/api-docs", swaggerUiMiddleware);
