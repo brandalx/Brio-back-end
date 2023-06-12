@@ -1,19 +1,35 @@
 import mongoose from "mongoose";
 
-let schema = new mongoose.Schema({
-  id: String,
-  cartId: { type: mongoose.Schema.Types.ObjectId, ref: "Carts" },
-  status: {
-    type: String,
-    enum: ["in_progress", "success", "canceled", "waiting"],
+const productSchema = new mongoose.Schema({
+  productRef: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Product",
+    required: true,
   },
-  customer: {
-    firstname: String,
-    lastname: String,
-  },
-  delivery: {
-    address: String,
+  amount: {
+    type: Number,
+    required: true,
   },
 });
 
-export const ordersModel = mongoose.model("orders", schema);
+const orderSchema = new mongoose.Schema({
+  _id: mongoose.Schema.Types.ObjectId,
+  restaurantRef: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Restaurant",
+    required: true,
+  },
+  userRef: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  orderedTime: {
+    type: Date,
+    default: Date.now,
+    required: true,
+  },
+  products: [productSchema],
+});
+
+export const ordersModel = mongoose.model("orders", orderSchema);

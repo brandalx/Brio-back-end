@@ -3,15 +3,11 @@ import adminRestaurantsController from "../controllers/adminRestaurantsControlle
 
 const router = express.Router();
 
-router.get(
-  "/admin/restaurants/:id",
-  adminRestaurantsController.getRestaurantById
-);
-
-// GET /admin/restaurants/:id/menu
-router.get(
-  "/admin/restaurants/:id/menu",
-  adminRestaurantsController.adminGetRestaurantsMenu
-);
+router.get("/", adminRestaurantsController.getAllRestaurants);
+router.get("/:id", adminRestaurantsController.getRestaurantById);
+router.patch("/:id", adminRestaurantsController.updateRestaurantById);
+router.get("/:id", adminRestaurantsController.updateRestaurantById);
+router.get("/:id/products", adminRestaurantsController.getRestaurantProducts);
+router.get("/:id/menu", adminRestaurantsController.adminGetRestaurantsMenu);
 
 export default router;

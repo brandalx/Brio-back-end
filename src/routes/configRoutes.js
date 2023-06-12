@@ -1,28 +1,33 @@
 import express from "express";
 import indexRouter from "./index.js";
 import userRouter from "./users.js";
+import categoriesRouter from "./categories.js";
+import restaurantsRouter from "./restaurants.js";
+import productsRouter from "./products.js";
+import ordersRouter from "./orders.js";
 import { swaggerUiMiddleware } from "../docs/swaggerConfig.js";
-import adminProductsController from "../controllers/adminProductsController.js";
-import adminRestaurantsController from "../controllers/adminRestaurantsController.js";
+import adminOrdersRouter from "./adminOrdersRouter.js";
+import adminProductsRouter from "./adminProductsRouter.js";
+import adminCategoriesRouter from "./adminCategoriesRouter.js";
+
+import adminRestaurantsRouter from "./adminRestaurantsRouter.js";
+// Удалите импорт categories
 
 export const routesInit = (app) => {
+  // User routes
   app.use("/", indexRouter);
   app.use("/users", userRouter);
+  app.use("/getAllUsers", userRouter);
+  app.use("/categories", categoriesRouter);
+  app.use("/restaurants", restaurantsRouter);
+  app.use("/products", productsRouter);
+  app.use("/orders", ordersRouter);
 
-  // admin products routes
-  app.get("/getAllOrders", adminProductsController.getAllOrders);
-  app.get("/getProductById/:id", adminProductsController.getProductById);
-  app.get("/getOrderById/:id", adminProductsController.getOrderById);
-
-  // admin restaurants routes
-  app.get(
-    "/getRestaurantById/:id",
-    adminRestaurantsController.getRestaurantById
-  );
-  app.get(
-    "/adminGetRestaurantsMenu/:id",
-    adminRestaurantsController.adminGetRestaurantsMenu
-  );
+  // Admin restaurants routes
+  app.use("/admin/restaurants", adminRestaurantsRouter);
+  app.use("/admin/categories", adminCategoriesRouter);
+  app.use("/admin/products", adminProductsRouter);
+  app.use("/admin/orders", adminOrdersRouter);
 
   // Swagger API documentation
   app.use("/api-docs", swaggerUiMiddleware);

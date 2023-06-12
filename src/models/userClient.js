@@ -22,7 +22,7 @@ const userClientSchema = new mongoose.Schema({
   cart: {
     type: [
       {
-        productId: Number,
+        productId: String,
         productAmount: Number,
       },
     ],
@@ -39,33 +39,48 @@ const userClientSchema = new mongoose.Schema({
       rating: Number,
     },
   ],
-  address: {
-    country: String,
-    state: String,
-    city: String,
-    address1: String,
-    address2: String,
-  },
-  creditdata: {
-    paymentMethod: String,
-    cardNumber: String,
-    expirationDate: String,
-    securityCode: String,
-  },
+  address: [
+    {
+      country: String,
+      state: String,
+      city: String,
+      address1: String,
+      address2: String,
+    },
+  ],
+  creditdata: [
+    {
+      paymentMethod: {
+        type: String,
+        default: "Credit Card",
+      },
+      cardNumber: String,
+      expirationDate: String,
+      securityCode: String,
+      cardType: {
+        type: String,
+        default: "visa",
+      },
+      cardholder: String,
+    },
+  ],
   orders: [
     {
-      orderId: Number,
+      orderId: String,
       restaurant: String,
       creationDate: Date,
       creationTime: String,
       status: {
         type: String,
-        enum: ["placed", "prepared", "out", "delivered", "cancelled"],
       },
-      totalAmount: Number,
+
       paymentSummary: {
+        subtotal: Number,
         couponCode: String,
         tips: Number,
+        shipping: Number,
+        discount: Number,
+        totalAmount: Number,
       },
     },
   ],
@@ -89,4 +104,4 @@ const userClientSchema = new mongoose.Schema({
 
 export const UserClientModel = mongoose.model("users", userClientSchema);
 
-//todo: correct model according on future requests (in future releases)
+//todo: correct model according on future requests (in future releases)
