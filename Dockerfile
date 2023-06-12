@@ -10,4 +10,6 @@ RUN npm install
 
 COPY . .
 
-CMD ["npm run start"]
+EXPOSE 3001
+
+CMD ["node","app.js"]
