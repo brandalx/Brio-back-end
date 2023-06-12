@@ -353,6 +353,21 @@ const usersController = {
       res.status(502).json({ err });
     }
   },
+
+  async getUserInfo(req, res) {
+    try {
+      let user = await UserClientModel.findOne(
+        { _id: req.tokenData._id },
+        //deletes password from resposnse
+        { password: 0 }
+      );
+      res.json(user);
+    } catch (err) {
+      console.log(err);
+
+      return res.status(502).json({ err });
+    }
+  },
 };
 
 export default usersController;

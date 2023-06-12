@@ -18,5 +18,6 @@ router.post("/:id/postusercard", usersController.postUserCard);
 router.post("/:id/posttocart", usersController.postToCart);
 router.post("/new", usersController.postUser);
 router.post("/login", usersController.postLogin);
+router.get("/info/user", auth, usersController.getUserInfo);
 
 export default router;
