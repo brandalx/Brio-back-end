@@ -1,3 +1,6 @@
+# todo: swagger automated doc for Restaurant route client side
+
+#this is basic example for yaml swagger doc with get request
 openapi: 3.0.1
 info:
   title: Restaurant API
@@ -44,7 +47,6 @@ paths:
         404:
           description: Restaurant not found
           content: {}
-
   /restaurants/{id}/products:
     get:
       tags:
@@ -87,6 +89,25 @@ paths:
 
 components:
   schemas:
+
+    # Schema for ProductInput object
+    ProductInput:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The restaurant's ID
+        name:
+          type: string
+          description: The name of the product.
+        description:
+          type: string
+          description: The description of the product.
+        price:
+          type: number
+          description: The price of the product.
+          format: double
+
     # Schema for Restaurant object
     Restaurants:
       type: object
@@ -158,18 +179,3 @@ components:
         - image
         - price
         - restaurant
-
-    # Schema for ProductInput object
-    ProductInput:
-      type: object
-      properties:
-        name:
-          type: string
-          description: The name of the product.
-        description:
-          type: string
-          description: The description of the product.
-        price:
-          type: number
-          description: The price of the product.
-          format: double

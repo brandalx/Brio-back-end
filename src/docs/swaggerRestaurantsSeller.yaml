@@ -1,6 +1,7 @@
 openapi: 3.0.1
 info:
   title: Restaurant API (Seller Side)
+  description: This API allows restaurant owners to manage their restaurant and products.
   version: 1.0.0
 servers:
   - url: http://localhost:3001/
@@ -65,6 +66,7 @@ paths:
       responses:
         "204":
           description: The restaurant was deleted successfully.
+
   /restaurants/{id}/products:
     get:
       tags:
