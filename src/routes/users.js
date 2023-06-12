@@ -17,5 +17,6 @@ router.post("/:id/postuseraddress", usersController.postUserAddress);
 router.post("/:id/postusercard", usersController.postUserCard);
 router.post("/:id/posttocart", usersController.postToCart);
 router.post("/new", usersController.postUser);
+router.post("/login", usersController.postLogin);
 
 export default router;

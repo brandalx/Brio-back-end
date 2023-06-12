@@ -7,7 +7,10 @@ import {
   validateUserClientData,
   validateUserClientCart,
   validateUserPost,
+  validateUserLogin,
 } from "../validation/userClientValidation.js";
+
+import { createToken } from "../services/token.js";
 
 const usersController = {
   randomStars() {
@@ -315,6 +318,39 @@ const usersController = {
       }
       console.log(err);
       return res.status(502).json({ err });
+    }
+  },
+
+  async postLogin(req, res) {
+    let validBody = validateUserLogin(req.body);
+    if (validBody.error) {
+      return res.status(400).json(validBody.error.details);
+    }
+    try {
+      let user = await UserClientModel.findOne({ email: req.body.email });
+
+      if (!user) {
+        return res
+          .status(401)
+          .json({ err: "Email not found / user dont exist" });
+      }
+      let validPassword = await bcrypt.compare(
+        req.body.password,
+        user.password
+      );
+
+      if (!validPassword) {
+        return res
+          .status(401)
+          .json({ err: "Password you're entered is wrong" });
+      }
+
+      let newToken = createToken(user._id, user.role);
+
+      res.json({ token: newToken });
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ err });
     }
   },
 };
