@@ -266,10 +266,12 @@ const usersController = {
         .json({ err: "password not the same as confirmed password" });
     }
     let desfineType;
-    if ((req.body.type = "personal")) {
+    if (req.body.type === "personal") {
       desfineType = "USER";
-    } else if ((req.body.type = "restaurant")) {
+    } else if (req.body.type === "restaurant") {
       desfineType = "ADMIN";
+    } else {
+      return res.status(502).json({ err: "account type error" });
     }
 
     try {
@@ -279,7 +281,7 @@ const usersController = {
         lastname: "",
         email: "",
         birthdate: null,
-        nickname: "",
+        nickname: req.body.email,
         avatar: "",
         password: "",
         cart: [],

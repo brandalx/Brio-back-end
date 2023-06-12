@@ -16,6 +16,6 @@ router.put("/:id/putuserdata", usersController.putUserData);
 router.post("/:id/postuseraddress", usersController.postUserAddress);
 router.post("/:id/postusercard", usersController.postUserCard);
 router.post("/:id/posttocart", usersController.postToCart);
-router.post("/user", auth, usersController.postUser);
+router.post("/new", usersController.postUser);
 
 export default router;
