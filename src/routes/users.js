@@ -1,5 +1,6 @@
 import express from "express";
 import usersController from "../controllers/usersController.js";
+import auth from "../middlewares/auth.js";
 // TO-DO: add auth middleware
 const router = express.Router();
 // For each route there is a call to the controller that implements the required logic
@@ -15,5 +16,6 @@ router.put("/:id/putuserdata", usersController.putUserData);
 router.post("/:id/postuseraddress", usersController.postUserAddress);
 router.post("/:id/postusercard", usersController.postUserCard);
 router.post("/:id/posttocart", usersController.postToCart);
+router.post("/user", auth, usersController.postUser);
 
 export default router;

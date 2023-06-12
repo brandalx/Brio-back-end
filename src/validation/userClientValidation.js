@@ -156,3 +156,15 @@ export function validateUserClientCart(_reqBody) {
 
   return joiSchema.validate(_reqBody);
 }
+
+export function validateUserPost(_reqBody) {
+  const joiSchema = Joi.object({
+    type: Joi.string().min(3).max(10).required(),
+    email: string().min(3).max(10).required(),
+    password: string().min(3).max(10).required(),
+    confirmpassword: string().min(3).max(10).required(),
+    phone: string().min(3).max(10).required(),
+  }).required();
+
+  return joiSchema.validate(_reqBody);
+}

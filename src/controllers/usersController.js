@@ -1,12 +1,19 @@
 import { UserClientModel } from "../models/userClient.js";
+import bcrypt from "bcrypt";
+import express from "express";
 import {
   validateUserClientAddress,
   validateUserClientCard,
   validateUserClientData,
   validateUserClientCart,
+  validateUserPost,
 } from "../validation/userClientValidation.js";
 
 const usersController = {
+  randomStars() {
+    let numOfStars = Math.floor(Math.random() * 4) + 6;
+    return "*".repeat(numOfStars);
+  },
   getUsers(req, res) {
     try {
       res.json({ message: "Users endpoint" });
@@ -243,6 +250,67 @@ const usersController = {
       console.log(user.cart);
       res.status(201).json({ msg: true });
     } catch (err) {
+      console.log(err);
+      return res.status(502).json({ err });
+    }
+  },
+
+  async postUser(req, res) {
+    let validBody = validateUserPost(req.body);
+    if (validBody.error) {
+      return res.status(400).json(validBody.error.details);
+    }
+    if (req.body.password != req.body.confirmpassword) {
+      return res
+        .status(400)
+        .json({ err: "password not the same as confirmed password" });
+    }
+    let desfineType;
+    if ((req.body.type = "personal")) {
+      desfineType = "USER";
+    } else if ((req.body.type = "restaurant")) {
+      desfineType = "ADMIN";
+    }
+
+    try {
+      // Initialize a base object with default values
+      let baseUser = {
+        firstname: "",
+        lastname: "",
+        email: "",
+        birthdate: null,
+        nickname: "",
+        avatar: "",
+        password: "",
+        cart: [],
+        comments: [],
+        rate: [],
+        address: [],
+        creditdata: [],
+        orders: [],
+        role: desfineType,
+        favorites: [],
+        phone: "",
+        emailnotifications: false,
+      };
+
+      // Merge base object with request body
+      let userBody = { ...baseUser, ...req.body };
+
+      let user = new UserClientModel(userBody);
+
+      user.password = await bcrypt.hash(user.password, 10);
+      user = await user.save();
+      user.password = usersController.randomStars();
+      res.status(201).json(user);
+    } catch (err) {
+      console.log(err);
+      if (err.code == 11000) {
+        return res.status(400).json({
+          msg: "This email is already exist in our system, please try log in again ",
+          code: 11000,
+        });
+      }
       console.log(err);
       return res.status(502).json({ err });
     }
