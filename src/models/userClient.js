@@ -100,6 +100,7 @@ const userClientSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  notes: String,
 });
 
 export const UserClientModel = mongoose.model("users", userClientSchema);
