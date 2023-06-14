@@ -8,6 +8,7 @@ import {
   validateUserClientCart,
   validateUserPost,
   validateUserLogin,
+  validateUserSecurity,
 } from "../validation/userClientValidation.js";
 
 import { createToken } from "../services/token.js";
@@ -365,6 +366,46 @@ const usersController = {
     } catch (err) {
       console.log(err);
 
+      return res.status(502).json({ err });
+    }
+  },
+
+  async putUserSecurity(req, res) {
+    // Validate user input using Joi schema
+    const validBody = validateUserSecurity(req.body);
+    if (validBody.error) {
+      return res.status(400).json(validBody.error.details);
+    }
+    const id = req.params.id;
+
+    const tokenDataId = req.tokenData._id;
+
+    // Find the user by ID from token
+    let user = await UserClientModel.findOne({ _id: req.tokenData._id });
+    if (!user) {
+      return res.status(401).json({ err: "Email not found / user dont exist" });
+    }
+
+    if (req.body.password != req.body.confirmpassword) {
+      return res
+        .status(400)
+        .json({ err: "password not the same as confirmed password" });
+    }
+
+    try {
+      // Hash the users new password before updating
+      const passwordHash = await bcrypt.hash(req.body.password, 10);
+      req.body.password = passwordHash;
+
+      // Update the user details
+      const data = await UserClientModel.updateOne(
+        { _id: tokenDataId },
+        req.body
+      );
+      user.password = usersController.randomStars();
+      res.json(data);
+    } catch (err) {
+      console.log(err);
       return res.status(502).json({ err });
     }
   },

@@ -179,3 +179,13 @@ export function validateUserLogin(_reqBody) {
 
   return joiSchema.validate(_reqBody);
 }
+
+export function validateUserSecurity(_reqBody) {
+  const joiSchema = Joi.object({
+    email: Joi.string().min(3).max(150).required(),
+    password: Joi.string().min(3).max(150).required(),
+    confirmpassword: Joi.string().min(3).max(150).required(),
+  }).required();
+
+  return joiSchema.validate(_reqBody);
+}
