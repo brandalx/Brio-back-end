@@ -2,7 +2,8 @@ import mongoose from "mongoose";
 
 const promotionSchema = new mongoose.Schema({
   discountDetails: String,
-  availableDate: String,
+  startDate: String,
+  endDate: String,
   restaurantName: String,
   image: String,
   discountDays: Array,

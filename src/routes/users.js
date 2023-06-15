@@ -10,7 +10,6 @@ router.get("/", auth, usersController.getUserById);
 router.get("/:id/cart", auth, usersController.getUserCart);
 router.get("/:id/address", auth, usersController.getUserAddress);
 router.get("/:id/credit-data", auth, usersController.getUserCreditData);
-
 router.get("/orders", auth, usersController.getUserOrders);
 router.put("/:id/putuserdata", auth, usersController.putUserData);
 router.post("/postuseraddress", auth, usersController.postUserAddress);
@@ -20,5 +19,6 @@ router.post("/new", usersController.postUser);
 router.post("/login", usersController.postLogin);
 router.get("/info/user", auth, usersController.getUserInfo);
 router.put("/security", auth, usersController.putUserSecurity);
+router.post("/:id/notes", usersController.postUserNotes);
 
 export default router;

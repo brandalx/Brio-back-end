@@ -262,6 +262,7 @@ const usersController = {
     }
   },
 
+
   async postUser(req, res) {
     let validBody = validateUserPost(req.body);
     if (validBody.error) {
@@ -418,6 +419,28 @@ const usersController = {
       );
       user.password = usersController.randomStars();
       res.json(data);
+
+  async postUserNotes(req, res) {
+    const id = req.params.id;
+
+    try {
+      let user = await UserClientModel.findOne({ _id: id });
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      // todo: pass auth middleware
+
+      // Assuming req.body has a notes field that we want to update
+      if (!req.body.notes) {
+        return res.status(400).json({ err: "Missing notes in request body" });
+      }
+
+      user.notes = req.body.notes;
+      await user.save();
+
+      res.status(201).json({ msg: true });
+
     } catch (err) {
       console.log(err);
       return res.status(502).json({ err });
