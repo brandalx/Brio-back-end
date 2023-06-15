@@ -97,10 +97,11 @@ const usersController = {
     }
   },
   async getUserOrders(req, res) {
-    let idParams = req.params.id;
+    // let idParams = req.params.id;
+    const tokenDataId = req.tokenData._id;
 
     try {
-      let user = await UserClientModel.findById(idParams);
+      let user = await UserClientModel.findById(tokenDataId);
       if (user) {
         let data = user.orders;
         res.json({ orders: data });
@@ -400,11 +401,9 @@ const usersController = {
     );
 
     if (!validPassword) {
-      return res
-        .status(401)
-        .json({
-          err: "Password you're provided does not matches with previous password",
-        });
+      return res.status(401).json({
+        err: "Password you're provided does not matches with previous password",
+      });
     }
 
     try {

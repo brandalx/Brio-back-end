@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 
 import { tokenSecret1, tokenSecret2 } from "../configs/config.js";
 
-const auth = (req, res, next) => {
+export const auth = (req, res, next) => {
   let token = req.header("x-api-key");
   if (!token) {
     return res.status(401).json({ err: "Please send token to this endpoint" });
@@ -17,7 +17,7 @@ const auth = (req, res, next) => {
   }
 };
 
-const authAdmin = (req, res, next) => {
+export const authAdmin = (req, res, next) => {
   // Checking if a token is sent in the header
   let token = req.header("x-api-key");
   if (!token) {
@@ -42,5 +42,3 @@ const authAdmin = (req, res, next) => {
     res.status(401).json({ err: "Token invalid or expired" });
   }
 };
-
-export default auth;
