@@ -1,12 +1,23 @@
 import { UserClientModel } from "../models/userClient.js";
+import bcrypt from "bcrypt";
+import express from "express";
 import {
   validateUserClientAddress,
   validateUserClientCard,
   validateUserClientData,
   validateUserClientCart,
+  validateUserPost,
+  validateUserLogin,
+  validateUserSecurity,
 } from "../validation/userClientValidation.js";
 
+import { createToken } from "../services/token.js";
+
 const usersController = {
+  randomStars() {
+    let numOfStars = Math.floor(Math.random() * 4) + 6;
+    return "*".repeat(numOfStars);
+  },
   getUsers(req, res) {
     try {
       res.json({ message: "Users endpoint" });
@@ -26,7 +37,7 @@ const usersController = {
   },
 
   async getUserById(req, res) {
-    let idParams = req.params.id;
+    const id = req.tokenData._id;
 
     try {
       let data = await UserClientModel.findById({ _id: idParams });
@@ -86,10 +97,11 @@ const usersController = {
     }
   },
   async getUserOrders(req, res) {
-    let idParams = req.params.id;
+    // let idParams = req.params.id;
+    const tokenDataId = req.tokenData._id;
 
     try {
-      let user = await UserClientModel.findById(idParams);
+      let user = await UserClientModel.findById(tokenDataId);
       if (user) {
         let data = user.orders;
         res.json({ orders: data });
@@ -127,7 +139,9 @@ const usersController = {
     }
   },
   async postUserAddress(req, res) {
-    const id = req.params.id;
+    // const id = req.params.id;
+
+    const id = req.tokenData._id;
 
     try {
       let user = await UserClientModel.findOne({ _id: id });
@@ -247,6 +261,165 @@ const usersController = {
       return res.status(502).json({ err });
     }
   },
+
+
+  async postUser(req, res) {
+    let validBody = validateUserPost(req.body);
+    if (validBody.error) {
+      return res.status(400).json(validBody.error.details);
+    }
+    if (req.body.password != req.body.confirmpassword) {
+      return res
+        .status(400)
+        .json({ err: "password not the same as confirmed password" });
+    }
+    let desfineType;
+    if (req.body.type === "personal") {
+      desfineType = "USER";
+    } else if (req.body.type === "restaurant") {
+      desfineType = "ADMIN";
+    } else {
+      return res.status(502).json({ err: "account type error" });
+    }
+
+    try {
+      // Initialize a base object with default values
+      let baseUser = {
+        firstname: "",
+        lastname: "",
+        email: "",
+        birthdate: null,
+        nickname: req.body.email,
+        avatar: "",
+        password: "",
+        cart: [],
+        comments: [],
+        rate: [],
+        address: [],
+        creditdata: [],
+        orders: [],
+        role: desfineType,
+        favorites: [],
+        phone: "",
+        emailnotifications: false,
+      };
+
+      // Merge base object with request body
+      let userBody = { ...baseUser, ...req.body };
+
+      let user = new UserClientModel(userBody);
+
+      user.password = await bcrypt.hash(user.password, 10);
+      user = await user.save();
+      user.password = usersController.randomStars();
+      res.status(201).json(user);
+    } catch (err) {
+      console.log(err);
+      if (err.code == 11000) {
+        return res.status(400).json({
+          msg: "This email is already exist in our system, please try log in again ",
+          code: 11000,
+        });
+      }
+      console.log(err);
+      return res.status(502).json({ err });
+    }
+  },
+
+  async postLogin(req, res) {
+    let validBody = validateUserLogin(req.body);
+    if (validBody.error) {
+      return res.status(400).json(validBody.error.details);
+    }
+    try {
+      let user = await UserClientModel.findOne({ email: req.body.email });
+
+      if (!user) {
+        return res
+          .status(401)
+          .json({ err: "Email not found / user dont exist" });
+      }
+      let validPassword = await bcrypt.compare(
+        req.body.password,
+        user.password
+      );
+
+      if (!validPassword) {
+        return res
+          .status(401)
+          .json({ err: "Password you're entered is wrong" });
+      }
+
+      let newToken = createToken(user._id, user.role);
+
+      res.json({ token: newToken });
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ err });
+    }
+  },
+
+  async getUserInfo(req, res) {
+    try {
+      let user = await UserClientModel.findOne(
+        { _id: req.tokenData._id },
+        //deletes password from resposnse
+        { password: 0 }
+      );
+      res.json(user);
+    } catch (err) {
+      console.log(err);
+
+      return res.status(502).json({ err });
+    }
+  },
+
+  async putUserSecurity(req, res) {
+    // Validate user input using Joi schema
+    const validBody = validateUserSecurity(req.body);
+    if (validBody.error) {
+      return res.status(400).json(validBody.error.details);
+    }
+    // const id = req.params.id;
+
+    const tokenDataId = req.tokenData._id;
+
+    // Find the user by ID from token
+    let user = await UserClientModel.findOne({ _id: req.tokenData._id });
+    if (!user) {
+      return res.status(401).json({ err: "Email not found / user dont exist" });
+    }
+
+    if (req.body.password != req.body.confirmpassword) {
+      return res
+        .status(400)
+        .json({ err: "password not the same as confirmed password" });
+    }
+
+    let validPassword = await bcrypt.compare(
+      req.body.previouspassword,
+      user.password
+    );
+
+    if (!validPassword) {
+      return res.status(401).json({
+        err: "Password you're provided does not matches with previous password",
+      });
+    }
+
+    try {
+      // Hash the users new password before updating
+      const passwordHash = await bcrypt.hash(req.body.password, 10);
+      req.body.password = passwordHash;
+
+      // Update the user details
+      const data = await UserClientModel.updateOne(
+        { _id: tokenDataId },
+        req.body
+      );
+      user.password = usersController.randomStars();
+      res.json(data);
+
   async postUserNotes(req, res) {
     const id = req.params.id;
 
@@ -267,6 +440,7 @@ const usersController = {
       await user.save();
 
       res.status(201).json({ msg: true });
+
     } catch (err) {
       console.log(err);
       return res.status(502).json({ err });

@@ -156,3 +156,36 @@ export function validateUserClientCart(_reqBody) {
 
   return joiSchema.validate(_reqBody);
 }
+
+export function validateUserPost(_reqBody) {
+  const joiSchema = Joi.object({
+    type: Joi.string().min(3).max(10).required(),
+    firstname: Joi.string().min(3).max(10).required(),
+    lastname: Joi.string().min(3).max(10).required(),
+    email: Joi.string().min(3).max(150).required(),
+    password: Joi.string().min(3).max(150).required(),
+    confirmpassword: Joi.string().min(3).max(150).required(),
+    phone: Joi.string().min(3).max(150).required(),
+  }).required();
+
+  return joiSchema.validate(_reqBody);
+}
+
+export function validateUserLogin(_reqBody) {
+  const joiSchema = Joi.object({
+    email: Joi.string().min(3).max(150).required(),
+    password: Joi.string().min(3).max(150).required(),
+  }).required();
+
+  return joiSchema.validate(_reqBody);
+}
+
+export function validateUserSecurity(_reqBody) {
+  const joiSchema = Joi.object({
+    previouspassword: Joi.string().min(3).max(150).required(),
+    password: Joi.string().min(3).max(150).required(),
+    confirmpassword: Joi.string().min(3).max(150).required(),
+  }).required();
+
+  return joiSchema.validate(_reqBody);
+}
