@@ -37,7 +37,7 @@ const usersController = {
   },
 
   async getUserById(req, res) {
-    let idParams = req.params.id;
+    const id = req.tokenData._id;
 
     try {
       let data = await UserClientModel.findById({ _id: idParams });
@@ -138,7 +138,9 @@ const usersController = {
     }
   },
   async postUserAddress(req, res) {
-    const id = req.params.id;
+    // const id = req.params.id;
+
+    const id = req.tokenData._id;
 
     try {
       let user = await UserClientModel.findOne({ _id: id });
@@ -376,7 +378,7 @@ const usersController = {
     if (validBody.error) {
       return res.status(400).json(validBody.error.details);
     }
-    const id = req.params.id;
+    // const id = req.params.id;
 
     const tokenDataId = req.tokenData._id;
 
@@ -390,6 +392,19 @@ const usersController = {
       return res
         .status(400)
         .json({ err: "password not the same as confirmed password" });
+    }
+
+    let validPassword = await bcrypt.compare(
+      req.body.previouspassword,
+      user.password
+    );
+
+    if (!validPassword) {
+      return res
+        .status(401)
+        .json({
+          err: "Password you're provided does not matches with previous password",
+        });
     }
 
     try {
