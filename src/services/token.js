@@ -5,7 +5,7 @@ export function createToken(user_id, role) {
   //                                           \/
   //                       payload    | the secret key |  options object (will expire in 60 minutes)
   let token = jwt.sign({ _id: user_id, role }, tokenSecret1, {
-    expiresIn: "60mins",
+    expiresIn: "24hours",
   });
   return token;
 }
