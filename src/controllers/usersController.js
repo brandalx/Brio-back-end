@@ -262,7 +262,6 @@ const usersController = {
     }
   },
 
-
   async postUser(req, res) {
     let validBody = validateUserPost(req.body);
     if (validBody.error) {
@@ -419,6 +418,11 @@ const usersController = {
       );
       user.password = usersController.randomStars();
       res.json(data);
+    } catch (err) {
+      console.log(err);
+      return res.status(502).json({ err });
+    }
+  },
 
   async postUserNotes(req, res) {
     const id = req.params.id;
@@ -440,7 +444,6 @@ const usersController = {
       await user.save();
 
       res.status(201).json({ msg: true });
-
     } catch (err) {
       console.log(err);
       return res.status(502).json({ err });
