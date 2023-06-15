@@ -13,7 +13,8 @@ const promotionsController = {
   async createPromotion(req, res) {
     const {
       discountDetails,
-      availableDate,
+      startDate,
+      endDate,
       restaurantName,
       image,
       discountDays,
@@ -22,7 +23,8 @@ const promotionsController = {
     try {
       const newPromotion = await promotionsModel.create({
         discountDetails,
-        availableDate,
+        startDate,
+        endDate,
         restaurantName,
         image,
         discountDays,
