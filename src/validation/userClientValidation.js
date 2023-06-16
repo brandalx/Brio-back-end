@@ -189,3 +189,11 @@ export function validateUserSecurity(_reqBody) {
 
   return joiSchema.validate(_reqBody);
 }
+
+export function validateUserClientAddressToDelete(_reqBody) {
+  const joiSchema = Joi.object({
+    addressToDelete: Joi.string().min(2).max(150).required(),
+  });
+
+  return joiSchema.validate(_reqBody);
+}

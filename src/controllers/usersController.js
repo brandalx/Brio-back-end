@@ -9,6 +9,7 @@ import {
   validateUserPost,
   validateUserLogin,
   validateUserSecurity,
+  validateUserClientAddressToDelete,
 } from "../validation/userClientValidation.js";
 
 import { createToken } from "../services/token.js";
@@ -180,6 +181,42 @@ const usersController = {
     } catch (err) {
       console.log(err);
       return res.status(502).json({ err });
+    }
+  },
+
+  async deleteUserAddress(req, res) {
+    const id = req.tokenData._id;
+
+    try {
+      const addressId = req.body.addressToDelete;
+      let user = await UserClientModel.findOne({ _id: id });
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      let validBody = validateUserClientAddressToDelete(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+      console.log(user.address);
+
+      const existingAddress = user.address.find((item) => {
+        return item._id.toString() === addressId.toString();
+      });
+
+      if (!existingAddress) {
+        return res.status(400).json({ err: "Address does not exist" });
+      }
+
+      const addressIndex = user.address.indexOf(existingAddress);
+      user.address.splice(addressIndex, 1);
+
+      await user.save();
+
+      res.status(200).json({ msg: true });
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ err });
     }
   },
 
