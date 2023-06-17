@@ -12,6 +12,8 @@ import {
   validateUserSecurity,
   validateUserClientAddressToDelete,
   validateUserClientAddressPut,
+  validateUserClientCardPut,
+  validateUserClientCardToDelete,
 } from "../validation/userClientValidation.js";
 
 import { createToken } from "../services/token.js";
@@ -41,6 +43,9 @@ const usersController = {
 
   async getUserById(req, res) {
     const id = req.tokenData._id;
+    if (!id) {
+      res.status(200).json({ error: "token id required" });
+    }
 
     try {
       let data = await UserClientModel.findById({ _id: idParams });
@@ -145,6 +150,9 @@ const usersController = {
     // const id = req.params.id;
 
     const id = req.tokenData._id;
+    if (!id) {
+      res.status(200).json({ error: "token id required" });
+    }
 
     try {
       let user = await UserClientModel.findOne({ _id: id });
@@ -188,6 +196,9 @@ const usersController = {
 
   async putUserAddress(req, res) {
     const id = req.tokenData._id;
+    if (!id) {
+      res.status(200).json({ error: "token id required" });
+    }
 
     try {
       let user = await UserClientModel.findOne({ _id: id });
@@ -219,6 +230,9 @@ const usersController = {
 
   async deleteUserAddress(req, res) {
     const id = req.tokenData._id;
+    if (!id) {
+      res.status(200).json({ error: "token id required" });
+    }
 
     try {
       const addressId = req.body.addressToDelete;
@@ -255,23 +269,76 @@ const usersController = {
 
   async deleteUserCard(req, res) {
     const id = req.tokenData._id;
+    if (!id) {
+      res.status(200).json({ error: "token id required" });
+    }
 
     try {
+      const cardId = req.body.cardToDelete;
+      let user = await UserClientModel.findOne({ _id: id });
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      let validBody = validateUserClientCardToDelete(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+
+      const existingCard = user.creditdata.find((item) => {
+        return item._id.toString() === cardId.toString();
+      });
+
+      if (!existingCard) {
+        return res.status(400).json({ err: "Card does not exist" });
+      }
+
+      const cardIndex = user.creditdata.indexOf(existingCard);
+      user.creditdata.splice(cardIndex, 1);
+
+      await user.save();
+
       res.status(200).json({ msg: true });
     } catch (err) {
+      console.log(err);
       res.status(502).json({ err });
     }
   },
-
+  //todo: add bcrypt
   async putUserCard(req, res) {
     const id = req.tokenData._id;
+    if (!id) {
+      res.status(200).json({ error: "token id required" });
+    }
 
     try {
+      let user = await UserClientModel.findOne({ _id: id });
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      let validBody = validateUserClientCardPut(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+      const cardId = req.body._id;
+      const cardIndex = user.creditdata.findIndex((item) => {
+        return item._id.toString() === cardId;
+      });
+
+      if (cardIndex === -1) {
+        return res.status(502).json({ err: "Address not found" });
+      }
+
+      user.creditdata[cardIndex] = req.body;
+      await user.save();
       return res.status(201).json({ msg: true });
     } catch (err) {
+      console.log(err);
       return res.status(502).json({ err });
     }
   },
+  //todo: add bcrypt
   async postUserCard(req, res) {
     const id = req.params.id;
 
