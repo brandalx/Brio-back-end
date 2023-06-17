@@ -253,6 +253,25 @@ const usersController = {
     }
   },
 
+  async deleteUserCard(req, res) {
+    const id = req.tokenData._id;
+
+    try {
+      res.status(200).json({ msg: true });
+    } catch (err) {
+      res.status(502).json({ err });
+    }
+  },
+
+  async putUserCard(req, res) {
+    const id = req.tokenData._id;
+
+    try {
+      return res.status(201).json({ msg: true });
+    } catch (err) {
+      return res.status(502).json({ err });
+    }
+  },
   async postUserCard(req, res) {
     const id = req.params.id;
 
