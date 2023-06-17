@@ -1,6 +1,7 @@
 import { UserClientModel } from "../models/userClient.js";
 import bcrypt from "bcrypt";
 import express from "express";
+import mongoose from "mongoose";
 import {
   validateUserClientAddress,
   validateUserClientCard,
@@ -10,6 +11,7 @@ import {
   validateUserLogin,
   validateUserSecurity,
   validateUserClientAddressToDelete,
+  validateUserClientAddressPut,
 } from "../validation/userClientValidation.js";
 
 import { createToken } from "../services/token.js";
@@ -178,6 +180,37 @@ const usersController = {
 
       console.log(user.address);
       res.status(201).json({ msg: true });
+    } catch (err) {
+      console.log(err);
+      return res.status(502).json({ err });
+    }
+  },
+
+  async putUserAddress(req, res) {
+    const id = req.tokenData._id;
+
+    try {
+      let user = await UserClientModel.findOne({ _id: id });
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      let validBody = validateUserClientAddressPut(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+      const addressId = req.body._id; // keep it as string
+      const addressIndex = user.address.findIndex((item) => {
+        return item._id.toString() === addressId; // convert ObjectId to string for comparison
+      });
+
+      if (addressIndex === -1) {
+        return res.status(502).json({ err: "Address not found" });
+      }
+
+      user.address[addressIndex] = req.body;
+      await user.save();
+      return res.status(201).json({ msg: true });
     } catch (err) {
       console.log(err);
       return res.status(502).json({ err });

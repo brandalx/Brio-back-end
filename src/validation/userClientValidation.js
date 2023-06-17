@@ -135,6 +135,18 @@ export function validateUserClientAddress(_reqBody) {
 
   return joiSchema.validate(_reqBody);
 }
+export function validateUserClientAddressPut(_reqBody) {
+  const joiSchema = Joi.object({
+    country: Joi.string().min(2).max(150).required(),
+    state: Joi.string().min(2).max(150).required(),
+    city: Joi.string().min(2).max(150).required(),
+    address1: Joi.string().min(2).max(150).required(),
+    address2: Joi.string().min(0).max(150).allow(null, " "),
+    _id: Joi.string().min(2).max(150).required(),
+  });
+
+  return joiSchema.validate(_reqBody);
+}
 
 export function validateUserClientCard(_reqBody) {
   const joiSchema = Joi.object({

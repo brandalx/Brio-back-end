@@ -21,5 +21,6 @@ router.get("/info/user", auth, usersController.getUserInfo);
 router.put("/security", auth, usersController.putUserSecurity);
 router.post("/:id/notes", usersController.postUserNotes);
 router.delete("/address/delete", auth, usersController.deleteUserAddress);
+router.put("/address/edit", auth, usersController.putUserAddress);
 
 export default router;
