@@ -105,8 +105,10 @@ const usersController = {
     }
   },
   async getUserOrders(req, res) {
-    // let idParams = req.params.id;
-    const tokenDataId = req.tokenData._id;
+    const id = req.tokenData._id;
+    if (!id) {
+      res.status(200).json({ error: "token id required" });
+    }
 
     try {
       let user = await UserClientModel.findById(tokenDataId);
@@ -123,7 +125,10 @@ const usersController = {
   },
 
   async putUserData(req, res) {
-    const id = req.params.id;
+    const id = req.tokenData._id;
+    if (!id) {
+      res.status(200).json({ error: "token id required" });
+    }
 
     try {
       let user = await UserClientModel.findOne({ _id: id });
@@ -340,7 +345,10 @@ const usersController = {
   },
   //todo: add bcrypt
   async postUserCard(req, res) {
-    const id = req.params.id;
+    const id = req.tokenData._id;
+    if (!id) {
+      res.status(200).json({ error: "token id required" });
+    }
 
     try {
       let user = await UserClientModel.findOne({ _id: id });
