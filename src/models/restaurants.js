@@ -12,14 +12,8 @@ const restaurantSchema = new mongoose.Schema({
   minprice: Number,
   time: String,
   phoneNumber: Number,
-  company: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "companies",
-    unique: true,
-  },
+  company: String,
   products: [{ type: mongoose.Schema.Types.ObjectId, ref: "products" }],
 });
-
 const Restaurants = mongoose.model("Restaurants", restaurantSchema);
-
 export default Restaurants;
