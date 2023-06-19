@@ -12,6 +12,10 @@ import {
 } from "../validation/userClientValidation.js";
 
 import { createToken } from "../services/token.js";
+import Admin from '../models/userSeller.js';
+
+import mongoose from "mongoose";
+import Restaurants from "../models/restaurants.js";
 
 const usersController = {
   randomStars() {
@@ -40,7 +44,7 @@ const usersController = {
     const id = req.tokenData._id;
 
     try {
-      let data = await UserClientModel.findById({ _id: idParams });
+      let data = await UserClientModel.findById({ _id: id });
       res.json(data);
     } catch (err) {
       console.log(err);
@@ -449,6 +453,69 @@ const usersController = {
       return res.status(502).json({ err });
     }
   },
-};
+// Функция для создания нового админа
+  async postNewAdmin(req, res) {
+    const { adminData } = req.body;
+
+    // Проверка данных
+    if (!adminData) {
+      return res.status(400).json({ error: 'Missing admin data' });
+    }
+
+    // Проверка совпадения пароля
+    if (adminData.password !== adminData.confirmpassword) {
+      return res.status(400).json({ error: "password not the same as confirmed password" });
+    }
+
+    // Назначение роли
+    const role = "ADMIN";
+
+    try {
+      // Инициализация базового объекта со значениями по умолчанию
+      let baseAdmin = {
+        firstname: "",
+        lastname: "",
+        email: "",
+        password: "",
+        phone: "",
+        restaurantId: "",
+        role: role,
+      };
+
+      // Объединение базового объекта с данными запроса
+      let adminBody = { ...baseAdmin, ...adminData };
+
+      let admin = new UserClientModel(adminBody);
+
+      admin.password = await bcrypt.hash(admin.password, 10);
+      const savedAdmin = await admin.save();
+
+      // Проверка успешности сохранения админа
+      if (!savedAdmin._id) {
+        return res.status(500).json({ error: 'Could not create admin' });
+      }
+
+      savedAdmin.password = '****'; // Замена пароля на звездочки перед отправкой в ответ
+
+      // Возвращение идентификатора нового админа
+      return res.status(201).json({
+        message: 'Admin successfully created',
+        admin: savedAdmin,
+      });
+
+    } catch (err) {
+      console.log(err);
+      if (err.code == 11000) {
+        return res.status(400).json({
+          msg: "This email is already exist in our system, please try log in again ",
+          code: 11000,
+        });
+      }
+      console.log(err);
+      return res.status(502).json({ err });
+    }
+  }
+
+}
 
 export default usersController;
