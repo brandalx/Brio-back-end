@@ -17,6 +17,7 @@ import {
 } from "../validation/userClientValidation.js";
 
 import { createToken } from "../services/token.js";
+import { productsModel } from "../models/products.js";
 
 const usersController = {
   randomStars() {
@@ -31,6 +32,51 @@ const usersController = {
       res.status(502).json({ err });
     }
   },
+
+  async GetPreSummary(req, res) {
+    try {
+      const id = req.tokenData._id;
+      if (!id) {
+        return res.status(400).json({ error: "token id required" });
+      }
+
+      let user = await UserClientModel.findById(id);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      if (!user.cart) {
+        return res.status(404).json({ error: "Cart data not found" });
+      }
+
+      let products = [];
+      for (let item of user.cart) {
+        console.log(item.productId);
+        let product = await productsModel.findById(item.productId);
+        if (product) {
+          product.price = product.price * item.productAmount;
+
+          products.push(product);
+        } else {
+          products.push(null);
+        }
+      }
+
+      let presummary = products.reduce((total, item) => {
+        return (total += item ? item.price : 0);
+      }, 0);
+      let shipping = 5;
+      res.json({
+        subtotal: presummary,
+        shipping: shipping, //will be replaced by restaurant later
+        totalAmount: shipping + presummary,
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ err: err.message });
+    }
+  },
+
   async getAllUsers(req, res) {
     try {
       let data = await UserClientModel.find({});

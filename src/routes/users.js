@@ -8,6 +8,7 @@ const router = express.Router();
 router.get("/getAllUsers", usersController.getAllUsers);
 router.get("/", auth, usersController.getUserById);
 router.get("/:id/cart", auth, usersController.getUserCart);
+router.get("/cart/presummary", auth, usersController.GetPreSummary);
 router.get("/:id/address", auth, usersController.getUserAddress);
 router.get("/:id/credit-data", auth, usersController.getUserCreditData);
 router.get("/orders", auth, usersController.getUserOrders);
