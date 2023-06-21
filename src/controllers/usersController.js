@@ -68,7 +68,7 @@ const usersController = {
       let shipping = 5;
       res.json({
         subtotal: presummary,
-        shipping: shipping, //will be replaced by restaurant later
+        shipping: presummary > 0 ? shipping : 0, //will be replaced by restaurant later
         totalAmount: shipping + presummary,
       });
     } catch (err) {
