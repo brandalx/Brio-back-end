@@ -76,8 +76,28 @@ const ordersController = {
         totalAmount: shipping + presummary + tips,
       };
       console.log(setPayment);
-
-      return res.status(200).json({ msg: true });
+      if (!setPayment) {
+        return res.status(502).json({ error: false });
+      }
+      // updating summary from server data
+      orderBody.userdata.paymentSummary.tips = setPayment.tips;
+      orderBody.userdata.paymentSummary.subtotal = setPayment.subtotal;
+      orderBody.userdata.paymentSummary.shipping = setPayment.shipping;
+      orderBody.userdata.paymentSummary.totalAmount = setPayment.totalAmount;
+      let newOrder = await new ordersModel(orderBody);
+      newOrder.userRef = id;
+      await newOrder.save();
+      console.log(newOrder);
+      let newOrderUser = {
+        userRef: newOrder.userRef,
+        restaurant: newOrder.ordersdata.restaurants,
+        creationDate: newOrder.creationDate,
+        paymentSummary: newOrder.userdata.paymentSummary,
+        orderRef: newOrder._id,
+      };
+      user.orders.push(newOrderUser);
+      await user.save();
+      res.status(201).json({ msg: true });
     } catch (err) {
       console.log(err);
       return res.status(502).json({ err });

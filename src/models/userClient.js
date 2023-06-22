@@ -66,24 +66,14 @@ const userClientSchema = new mongoose.Schema({
   ],
   orders: [
     {
-      orderId: String,
-      restaurant: String,
+      userRef: String,
+      restaurant: Array,
       creationDate: Date,
-      creationTime: String,
-      status: {
-        type: String,
-      },
-
-      paymentSummary: {
-        subtotal: Number,
-        couponCode: String,
-        tips: Number,
-        shipping: Number,
-        discount: Number,
-        totalAmount: Number,
-      },
+      paymentSummary: Object,
+      orderRef: String,
     },
   ],
+
   role: {
     type: String,
     default: "USER",

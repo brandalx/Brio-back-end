@@ -64,6 +64,13 @@ const userOrderSchema = new mongoose.Schema({
       required: true,
     },
   },
+  userRef: {
+    type: String,
+  },
+  creationDate: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 export const ordersModel = mongoose.model("orders", userOrderSchema);
