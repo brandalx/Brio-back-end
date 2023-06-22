@@ -19,17 +19,25 @@ export function validateOrder(order) {
 
 export function validateUserOrder(order) {
   const schema = Joi.object({
-    restaurant: Joi.string().min(2).max(150).required(),
-    status: Joi.string()
-      .valid("In progress", "Completed", "Canceled", "Suspended", "cancelled")
-      .required(),
-    paymentSummary: Joi.object({
-      couponCode: Joi.string().allow(null).allow("").min(2).max(150).optional(),
-      subtotal: Joi.number().required(),
-      tips: Joi.number().optional().allow(null),
-      shipping: Joi.number().required(),
-      discount: Joi.number().required(),
-      totalAmount: Joi.number().required(),
+    userdata: Joi.object({
+      selectedAddress: Joi.string().min(2).max(150).required(),
+      selectedPaymentMethod: Joi.string().min(2).max(150).required(),
+      status: Joi.string().valid("Placed").required(),
+      paymentSummary: Joi.object({
+        subtotal: Joi.number().required(),
+        tips: Joi.number().optional().allow(null),
+        shipping: Joi.number().optional().allow(null),
+        totalAmount: Joi.number().required(),
+      }).required(),
+    }).required(),
+    ordersdata: Joi.object({
+      products: Joi.array().items(
+        Joi.object({
+          productId: Joi.string().min(2).max(150).required(),
+          amount: Joi.number().required(),
+        })
+      ),
+      restaurants: Joi.array().items(Joi.string()),
     }).required(),
   });
 
