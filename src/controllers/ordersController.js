@@ -96,7 +96,9 @@ const ordersController = {
         orderRef: newOrder._id,
       };
       user.orders.push(newOrderUser);
+      user.cart = [];
       await user.save();
+
       res.status(201).json({ msg: true });
     } catch (err) {
       console.log(err);
