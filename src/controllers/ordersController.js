@@ -70,10 +70,10 @@ const ordersController = {
       let shipping = 5; //TODO: REPLACE IN RESTAURANT SHIPPING AMOUNT
       let tips = orderBody.userdata.paymentSummary.tips;
       let setPayment = {
-        tips: tips,
-        subtotal: presummary,
-        shipping: presummary > 0 ? shipping : 0,
-        totalAmount: shipping + presummary + tips,
+        tips: tips.toFixed(2),
+        subtotal: presummary.toFixed(2),
+        shipping: presummary > 0 ? shipping.toFixed(2) : 0,
+        totalAmount: (shipping + presummary + tips).toFixed(2),
       };
       console.log(setPayment);
       if (!setPayment) {

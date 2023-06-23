@@ -67,9 +67,9 @@ const usersController = {
       }, 0);
       let shipping = 5;
       res.json({
-        subtotal: presummary,
-        shipping: presummary > 0 ? shipping : 0, //will be replaced by restaurant later
-        totalAmount: shipping + presummary,
+        subtotal: presummary.toFixed(2),
+        shipping: presummary > 0 ? shipping.toFixed(2) : 0, //will be replaced by restaurant later
+        totalAmount: (shipping + presummary).toFixed(2),
       });
     } catch (err) {
       console.log(err);
