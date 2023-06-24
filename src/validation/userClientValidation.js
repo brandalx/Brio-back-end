@@ -231,3 +231,11 @@ export function validateUserClientCardToDelete(_reqBody) {
 
   return joiSchema.validate(_reqBody);
 }
+
+export function validateUserClientCartItemToDelete(_reqBody) {
+  const joiSchema = Joi.object({
+    itemToDelete: Joi.string().min(2).max(150).required(),
+  });
+
+  return joiSchema.validate(_reqBody);
+}

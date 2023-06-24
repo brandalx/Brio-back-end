@@ -14,6 +14,7 @@ import {
   validateUserClientAddressPut,
   validateUserClientCardPut,
   validateUserClientCardToDelete,
+  validateUserClientCartItemToDelete,
 } from "../validation/userClientValidation.js";
 
 import { createToken } from "../services/token.js";
@@ -356,6 +357,48 @@ const usersController = {
     }
   },
   //todo: add bcrypt
+
+  async deleteItemCart(req, res) {
+    try {
+      const itemId = req.body.itemToDelete;
+
+      const id = req.tokenData._id;
+      if (!id) {
+        res.status(200).json({ error: "token id required" });
+      }
+
+      let user = await UserClientModel.findOne({ _id: id });
+
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      let validBody = validateUserClientCartItemToDelete(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+
+      console.log(itemId);
+      const existingItem = user.cart.find((item) => {
+        return item._id.toString() === itemId.toString();
+      });
+
+      if (!existingItem) {
+        return res.status(400).json({ err: "Item does not exist" });
+      }
+
+      const itemIndex = user.cart.indexOf(existingItem);
+      user.cart.splice(itemIndex, 1);
+
+      await user.save();
+
+      res.status(200).json({ msg: true });
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ err });
+    }
+  },
+
   async putUserCard(req, res) {
     const id = req.tokenData._id;
     if (!id) {
