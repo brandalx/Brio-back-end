@@ -15,6 +15,23 @@ const ordersController = {
       return res.status(502).json({ err });
     }
   },
+
+  async getUserOrders(req, res) {
+    const id = req.tokenData._id;
+
+    try {
+      let data = await ordersModel.find({ userRef: id });
+      if (data) {
+        res.json(data);
+      } else {
+        res.status(404).json({ error: "Orders not found" });
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ error: err });
+    }
+  },
+
   async getOrdersById(req, res) {
     let idParams = req.params.id;
 
