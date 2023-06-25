@@ -475,10 +475,14 @@ const usersController = {
     }
   },
   async postToCart(req, res) {
-    const id = req.params.id;
+    const idParams = req.params.id;
+    const id = req.tokenData._id;
 
     try {
-      let user = await UserClientModel.findOne({ _id: id });
+      if (id != idParams) {
+        return res.status(401).json({ err: "User does not match" });
+      }
+      let user = await UserClientModel.findOne({ _id: idParams });
       if (!user) {
         return res.status(401).json({ err: "User not found" });
       }
@@ -500,7 +504,12 @@ const usersController = {
         // Update the existing product object in the cart array
         user.cart[existingProductIndex] = req.body;
         await user.save();
-        return res.status(201).json({ msg: true });
+
+        let user2 = await UserClientModel.findOne({ _id: idParams });
+
+        return res
+          .status(201)
+          .json({ msg: true, _id: user2.cart[existingProductIndex]._id });
       }
       //if not keeping going
 
