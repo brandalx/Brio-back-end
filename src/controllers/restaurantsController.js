@@ -41,6 +41,29 @@ const restaurantController = {
       res.status(502).json({ error: err });
     }
   },
+  async addProductToRestaurant(req, res) {
+    const { id } = req.params;
+    const { productId } = req.body;
+
+    try {
+      const restaurant = await Restaurants.findById(id);
+      if (restaurant) {
+        // Add product id to restaurant's products array
+        restaurant.products.push(productId);
+
+        // Save the updated restaurant
+        const updatedRestaurant = await restaurant.save();
+
+        res.status(200).json(updatedRestaurant);
+      } else {
+        res.status(404).json({ error: "Restaurant not found" });
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err });
+    }
+  },
+
 };
 
 export default restaurantController;
