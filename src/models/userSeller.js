@@ -1,13 +1,20 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
 
-let schema = new mongoose.Schema({
+const AdminSchema = new Schema({
+  // Остальные поля здесь
   firstname: String,
   lastname: String,
   email: String,
   phone: String,
   company: String,
-  //todo: add roles
+  // Ссылка на ресторан
+  restaurantId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Restaurant' // Это название модели ресторана
+  },
+  password:String
 });
-export const userSellerModel = mongoose.model("usersSeller", schema);
 
-//todo: correct model according on future requests (in future releases)
+const Admin = mongoose.model('Admin', AdminSchema);
+export default Admin;
