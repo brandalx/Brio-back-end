@@ -16,6 +16,7 @@
   import Restaurants from "../models/restaurants.js";
   import { UserClientModel } from "../models/userClient.js";
   import router from "./restaurants.js";
+  import { authAdmin } from "../middlewares/auth.js";
 
   export const routesInit = (app) => {
     // User routes
@@ -36,7 +37,6 @@
     app.post('/createRestaurantAndAdmin', async (req, res) => {
       const session = await mongoose.startSession();
       session.startTransaction();
-
       try {
         const restaurantData = req.body.restaurant;
         const adminData = req.body.admin;
