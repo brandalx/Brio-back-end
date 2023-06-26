@@ -766,8 +766,17 @@ const usersController = {
             if (err) {
               return res.status(400).json({ err });
             }
-            res.json({ msg: "File uploaded", fileUrl });
           });
+        })
+        .then(() => {
+          const excludedPath = fileUrl.replace(/^public\//, "");
+          user.avatar = excludedPath;
+          user.save();
+        })
+        .then(() => {
+          const excludedPath = fileUrl.replace(/^public\//, "");
+
+          res.json({ msg: "File uploaded", excludedPath });
         })
         .catch((err) => {
           console.log(err);
