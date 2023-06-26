@@ -16,6 +16,7 @@ import Admin from '../models/userSeller.js';
 
 import mongoose from "mongoose";
 import Restaurants from "../models/restaurants.js";
+import jwt from "jsonwebtoken";
 
 const usersController = {
   randomStars() {
@@ -41,10 +42,24 @@ const usersController = {
   },
 
   async getUserById(req, res) {
-    const id = req.tokenData._id;
+    const currentUserId = req.tokenData._id;
+    const requestedUserId = req.params.id;
+    const token = req.headers['x-api-key'];
+
+    jwt.verify(token, process.env.TOKENSECRET1, (err, decoded) => {
+      if (err) {
+        return res.status(403).json({ message: 'Invalid token.' });
+      } else {
+        console.log(decoded);
+      }
+    });
 
     try {
-      let data = await UserClientModel.findById({ _id: id });
+
+      if ((currentUserId !== requestedUserId && req.tokenData.role !== 'ADMIN')) {
+        return res.status(403).json({ message: 'You do not have permission to view this profile.' });
+      }
+      let data = await UserClientModel.findById({ _id: requestedUserId });
       res.json(data);
     } catch (err) {
       console.log(err);
@@ -342,10 +357,16 @@ const usersController = {
           .status(401)
           .json({ err: "Email not found / user dont exist" });
       }
+
+      console.log(`Entered password: ${req.body.password}`);
+      console.log(`Hashed password in DB: ${user.password}`);
+
       let validPassword = await bcrypt.compare(
         req.body.password,
         user.password
       );
+
+      console.log(`Result of password comparison: ${validPassword}`);
 
       if (!validPassword) {
         return res
@@ -362,20 +383,6 @@ const usersController = {
     }
   },
 
-  async getUserInfo(req, res) {
-    try {
-      let user = await UserClientModel.findOne(
-        { _id: req.tokenData._id },
-        //deletes password from resposnse
-        { password: 0 }
-      );
-      res.json(user);
-    } catch (err) {
-      console.log(err);
-
-      return res.status(502).json({ err });
-    }
-  },
 
   async putUserSecurity(req, res) {
     // Validate user input using Joi schema
