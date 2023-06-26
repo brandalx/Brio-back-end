@@ -26,5 +26,6 @@ router.put("/address/edit", auth, usersController.putUserAddress);
 router.delete("/card/delete", auth, usersController.deleteUserCard);
 router.delete("/cart/delete", auth, usersController.deleteItemCart);
 router.put("/card/edit", auth, usersController.putUserCard);
+router.post("/user/avatar", auth, usersController.postUserAvatar);
 
 export default router;

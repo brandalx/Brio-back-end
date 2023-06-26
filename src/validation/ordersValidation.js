@@ -35,6 +35,7 @@ export function validateUserOrder(order) {
         Joi.object({
           productId: Joi.string().min(2).max(150).required(),
           amount: Joi.number().required(),
+          restaurantId: Joi.string().min(2).max(150).required(),
         })
       ),
       restaurants: Joi.array().items(Joi.string()),

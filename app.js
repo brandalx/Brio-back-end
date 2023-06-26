@@ -2,6 +2,8 @@ import express from "express";
 import http from "http";
 import path, { dirname } from "path";
 
+import fileUpload from "express-fileupload";
+
 import cors from "cors";
 import { fileURLToPath } from "url";
 import { main } from "./src/database/mongoConnect.js";
@@ -14,7 +16,12 @@ import { port } from "./src/configs/config.js";
 
 // creating an instance of the express
 const app = express();
-
+app.use(
+  fileUpload({
+    // 1024 bytes in 1kb , 1024 kb in 1 mb , 5 (mb) = 5mb
+    limits: { fileSize: 1024 * 1024 * 5 },
+  })
+);
 // Parse incoming request body as JSON
 app.use(express.json());
 

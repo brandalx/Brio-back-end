@@ -30,6 +30,11 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+
+    restaurantId: {
+      type: String,
+      required: true,
+    },
   },
   { _id: false }
 );
