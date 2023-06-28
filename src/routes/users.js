@@ -19,7 +19,6 @@ router.post("/new", usersController.postUser);
 router.post("/login", usersController.postLogin);
 // router.get("/info/user", auth, usersController.getUserInfo);
 router.put("/security", auth, usersController.putUserSecurity);
-router.post("/:id/notes",authAdmin, usersController.postUserNotes);
-
+router.post("/:id/notes", authAdmin, usersController.postUserNotes);
 
 export default router;

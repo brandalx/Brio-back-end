@@ -65,7 +65,7 @@ const userClientSchema = new mongoose.Schema({
   orders: [
     {
       orderId: String,
-      restaurant: String,
+      restaurant: [String],
       creationDate: Date,
       creationTime: String,
       status: {
@@ -82,16 +82,17 @@ const userClientSchema = new mongoose.Schema({
       },
     },
   ],
+
   role: {
     type: String,
     default: "USER",
   },
   restaurant: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'restaurants',
-    required: function() {
-      return this.role === 'ADMIN';
-    }
+    ref: "restaurants",
+    required: function () {
+      return this.role === "ADMIN";
+    },
   },
   favorites: [
     {
@@ -108,14 +109,14 @@ const userClientSchema = new mongoose.Schema({
   notes: String,
 });
 
-userClientSchema.pre('save', function (next) {
+userClientSchema.pre("save", function (next) {
   let user = this;
-  if (this.isModified('password') || this.isNew) {
+  if (this.isModified("password") || this.isNew) {
     bcrypt.genSalt(10, function (err, salt) {
       if (err) {
         return next(err);
       }
-      bcrypt.hash(user.password, salt, function(err, hash) {
+      bcrypt.hash(user.password, salt, function (err, hash) {
         if (err) {
           return next(err);
         }

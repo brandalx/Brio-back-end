@@ -6,7 +6,11 @@ const router = express.Router();
 
 router.get("/", adminRestaurantsController.getAllRestaurants);
 router.get("/:id", adminRestaurantsController.getRestaurantById);
-router.patch("/:id",authAdmin, adminRestaurantsController.updateRestaurantById);
+router.patch(
+  "/:id",
+  authAdmin,
+  adminRestaurantsController.updateRestaurantById
+);
 router.get("/:id", adminRestaurantsController.updateRestaurantById);
 router.get("/:id/products", adminRestaurantsController.getRestaurantProducts);
 router.get("/:id/menu", adminRestaurantsController.adminGetRestaurantsMenu);

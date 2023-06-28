@@ -41,6 +41,38 @@ const restaurantController = {
       res.status(502).json({ error: err });
     }
   },
+  async removeProductFromRestaurant(req, res) {
+    const { id } = req.params;
+    const { productId } = req.body;
+
+    if (!productId) {
+      return res
+        .status(400)
+        .json({ error: "No productId provided in the request body" });
+    }
+
+    try {
+      const restaurant = await Restaurants.findById(id);
+      if (restaurant) {
+        const index = restaurant.products.findIndex(
+          (prodId) => prodId.toString() === productId
+        );
+
+        if (index > -1) {
+          restaurant.products.splice(index, 1);
+        }
+
+        const updatedRestaurant = await restaurant.save();
+
+        res.status(200).json(updatedRestaurant);
+      } else {
+        res.status(404).json({ error: "Restaurant not found" });
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err });
+    }
+  },
   async addProductToRestaurant(req, res) {
     const { id } = req.params;
     const { productId } = req.body;
@@ -63,7 +95,6 @@ const restaurantController = {
       res.status(500).json({ error: err });
     }
   },
-
 };
 
 export default restaurantController;

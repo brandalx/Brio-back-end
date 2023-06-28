@@ -4,6 +4,6 @@ import { authAdmin } from "../middlewares/auth.js";
 
 const router = Router();
 router.get("/", AdminPromotionsController.getAllPromotions);
-router.post("/",authAdmin, AdminPromotionsController.createPromotion);
+router.post("/", authAdmin, AdminPromotionsController.createPromotion);
 
 export default router;

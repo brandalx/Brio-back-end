@@ -35,7 +35,6 @@ const adminCategoriesController = {
         itemsId,
       });
 
-
       const restaurant = await Restaurants.findById(restaurantId);
       if (!restaurant) {
         throw new Error("Restaurant not found");
@@ -43,20 +42,18 @@ const adminCategoriesController = {
 
       if (restaurant) {
         if (!newCategory._id) {
-          console.error('newCategory._id is empty');
-          throw new Error('Invalid category id');
+          console.error("newCategory._id is empty");
+          throw new Error("Invalid category id");
         }
         if (restaurant.categories) {
           restaurant.categories.push(newCategory._id);
         } else {
           restaurant.categories = [newCategory._id];
         }
-        await restaurant.save().catch(err => {
-          console.error('Error while saving the restaurant:', err);
+        await restaurant.save().catch((err) => {
+          console.error("Error while saving the restaurant:", err);
           throw err; // To stop the execution
         });
-
-
       } else {
         console.error(`Restaurant with id ${restaurantId} not found`);
       }

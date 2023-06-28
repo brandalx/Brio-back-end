@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const AdminSchema = new Schema({
@@ -11,10 +11,10 @@ const AdminSchema = new Schema({
   // Ссылка на ресторан
   restaurantId: {
     type: Schema.Types.ObjectId,
-    ref: 'Restaurant' // Это название модели ресторана
+    ref: "Restaurant", // Это название модели ресторана
   },
-  password:String
+  password: String,
 });
 
-const Admin = mongoose.model('Admin', AdminSchema);
+const Admin = mongoose.model("Admin", AdminSchema);
 export default Admin;

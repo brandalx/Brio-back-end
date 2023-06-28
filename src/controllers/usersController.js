@@ -12,7 +12,7 @@ import {
 } from "../validation/userClientValidation.js";
 
 import { createToken } from "../services/token.js";
-import Admin from '../models/userSeller.js';
+import Admin from "../models/userSeller.js";
 
 import mongoose from "mongoose";
 import Restaurants from "../models/restaurants.js";
@@ -44,20 +44,23 @@ const usersController = {
   async getUserById(req, res) {
     const currentUserId = req.tokenData._id;
     const requestedUserId = req.params.id;
-    const token = req.headers['x-api-key'];
+    const token = req.headers["x-api-key"];
 
     jwt.verify(token, process.env.TOKENSECRET1, (err, decoded) => {
       if (err) {
-        return res.status(403).json({ message: 'Invalid token.' });
+        return res.status(403).json({ message: "Invalid token." });
       } else {
         console.log(decoded);
       }
     });
 
     try {
-
-      if ((currentUserId !== requestedUserId && req.tokenData.role !== 'ADMIN')) {
-        return res.status(403).json({ message: 'You do not have permission to view this profile.' });
+      if (currentUserId !== requestedUserId && req.tokenData.role !== "ADMIN") {
+        return res
+          .status(403)
+          .json({
+            message: "You do not have permission to view this profile.",
+          });
       }
       let data = await UserClientModel.findById({ _id: requestedUserId });
       res.json(data);
@@ -383,7 +386,6 @@ const usersController = {
     }
   },
 
-
   async putUserSecurity(req, res) {
     // Validate user input using Joi schema
     const validBody = validateUserSecurity(req.body);
@@ -460,18 +462,20 @@ const usersController = {
       return res.status(502).json({ err });
     }
   },
-// Функция для создания нового админа
+  // Функция для создания нового админа
   async postNewAdmin(req, res) {
     const { adminData } = req.body;
 
     // Проверка данных
     if (!adminData) {
-      return res.status(400).json({ error: 'Missing admin data' });
+      return res.status(400).json({ error: "Missing admin data" });
     }
 
     // Проверка совпадения пароля
     if (adminData.password !== adminData.confirmpassword) {
-      return res.status(400).json({ error: "password not the same as confirmed password" });
+      return res
+        .status(400)
+        .json({ error: "password not the same as confirmed password" });
     }
 
     // Назначение роли
@@ -499,17 +503,16 @@ const usersController = {
 
       // Проверка успешности сохранения админа
       if (!savedAdmin._id) {
-        return res.status(500).json({ error: 'Could not create admin' });
+        return res.status(500).json({ error: "Could not create admin" });
       }
 
-      savedAdmin.password = '****'; // Замена пароля на звездочки перед отправкой в ответ
+      savedAdmin.password = "****"; // Замена пароля на звездочки перед отправкой в ответ
 
       // Возвращение идентификатора нового админа
       return res.status(201).json({
-        message: 'Admin successfully created',
+        message: "Admin successfully created",
         admin: savedAdmin,
       });
-
     } catch (err) {
       console.log(err);
       if (err.code == 11000) {
@@ -521,8 +524,7 @@ const usersController = {
       console.log(err);
       return res.status(502).json({ err });
     }
-  }
-
-}
+  },
+};
 
 export default usersController;
