@@ -769,15 +769,17 @@ const usersController = {
           });
         })
         .then(() => {
-          const excludedPath = fileUrl.replace(/^public\//, "");
-          user.avatar = excludedPath;
-          user.save();
-        })
-        .then(() => {
-          const excludedPath = fileUrl.replace(/^public\//, "");
+          const excludedPath = fileUrl.replace(
+            new RegExp(`^public\\${path.sep}`),
+            ""
+          );
 
+          user.avatar = excludedPath;
+          console.log(excludedPath);
+          user.save();
           res.json({ msg: "File uploaded", excludedPath });
         })
+
         .catch((err) => {
           console.log(err);
           res.status(502).json({ err });
