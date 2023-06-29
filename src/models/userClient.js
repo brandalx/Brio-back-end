@@ -77,13 +77,13 @@ const userClientSchema = new mongoose.Schema({
     type: String,
     default: "USER",
   },
-  // restaurant: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: "restaurants",
-  //   required: function () {
-  //     return this.role === "ADMIN";
-  //   },
-  // },
+  restaurant: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "restaurants",
+    // required: function () {
+    //   return this.role === "ADMIN";
+    // },
+  },
   favorites: [
     {
       restaurant: String,
