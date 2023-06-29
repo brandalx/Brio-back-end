@@ -3,7 +3,7 @@ import restaurantController from "../controllers/restaurantsController.js";
 import { auth, authAdmin } from "../middlewares/auth.js";
 
 const router = Router();
-router.get("/", auth, restaurantController.getAllRestaurants);
+router.get("/", restaurantController.getAllRestaurants);
 router.get("/:id/", restaurantController.getRestaurantById);
 router.get("/:id/products", restaurantController.getRestaurantProducts);
 router.put(
