@@ -17,7 +17,7 @@ router.post("/:id/postusercard", auth, usersController.postUserCard);
 router.post("/:id/posttocart", auth, usersController.postToCart);
 router.post("/new", usersController.postUser);
 router.post("/login", usersController.postLogin);
-// router.get("/info/user", auth, usersController.getUserInfo);
+router.get("/info/user", auth, usersController.getUserInfo);
 router.put("/security", auth, usersController.putUserSecurity);
 router.post("/:id/notes", authAdmin, usersController.postUserNotes);
 

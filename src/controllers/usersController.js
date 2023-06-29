@@ -56,11 +56,9 @@ const usersController = {
 
     try {
       if (currentUserId !== requestedUserId && req.tokenData.role !== "ADMIN") {
-        return res
-          .status(403)
-          .json({
-            message: "You do not have permission to view this profile.",
-          });
+        return res.status(403).json({
+          message: "You do not have permission to view this profile.",
+        });
       }
       let data = await UserClientModel.findById({ _id: requestedUserId });
       res.json(data);
@@ -346,7 +344,20 @@ const usersController = {
       return res.status(502).json({ err });
     }
   },
+  async getUserInfo(req, res) {
+    try {
+      let user = await UserClientModel.findOne(
+        { _id: req.tokenData._id },
+        //deletes password from resposnse
+        { password: 0 }
+      );
+      res.json(user);
+    } catch (err) {
+      console.log(err);
 
+      return res.status(502).json({ err });
+    }
+  },
   async postLogin(req, res) {
     let validBody = validateUserLogin(req.body);
     if (validBody.error) {
