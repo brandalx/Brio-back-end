@@ -12,14 +12,21 @@ const restaurantSchema = new mongoose.Schema({
   minprice: Number,
   time: String,
   phoneNumber: Number,
-  company: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "companies",
-    unique: true,
-  },
+  company: String,
+  categories: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "categories",
+      validate: {
+        validator: function (v) {
+          return mongoose.Types.ObjectId.isValid(v);
+        },
+        message: "{VALUE} is not a valid ObjectId!",
+      },
+    },
+  ],
+
   products: [{ type: mongoose.Schema.Types.ObjectId, ref: "products" }],
 });
-
 const Restaurants = mongoose.model("Restaurants", restaurantSchema);
-
 export default Restaurants;
