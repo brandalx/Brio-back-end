@@ -1,7 +1,7 @@
 import { UserClientModel } from "../models/userClient.js";
 import bcrypt from "bcrypt";
 import express from "express";
-import mongoose from "mongoose";
+
 import {
   validateUserClientAddress,
   validateUserClientCard,
@@ -110,7 +110,6 @@ const usersController = {
         console.log(decoded);
       }
     });
-
 
     try {
       if (currentUserId !== requestedUserId && req.tokenData.role !== "ADMIN") {
@@ -813,15 +812,15 @@ const usersController = {
     } catch (err) {
       console.log(err);
       res.status(502).json({ err });
+    }
+  },
 
   async postNewAdmin(req, res) {
     const { adminData } = req.body;
 
-
     if (!adminData) {
       return res.status(400).json({ error: "Missing admin data" });
     }
-
 
     if (adminData.password !== adminData.confirmpassword) {
       return res
@@ -829,11 +828,9 @@ const usersController = {
         .json({ error: "password not the same as confirmed password" });
     }
 
-
     const role = "ADMIN";
 
     try {
- 
       let baseAdmin = {
         firstname: "",
         lastname: "",
@@ -844,7 +841,6 @@ const usersController = {
         role: role,
       };
 
-     
       let adminBody = { ...baseAdmin, ...adminData };
 
       let admin = new UserClientModel(adminBody);
@@ -852,14 +848,12 @@ const usersController = {
       admin.password = await bcrypt.hash(admin.password, 10);
       const savedAdmin = await admin.save();
 
-    
       if (!savedAdmin._id) {
         return res.status(500).json({ error: "Could not create admin" });
       }
 
-      savedAdmin.password = "****"; 
+      savedAdmin.password = "****";
 
-     
       return res.status(201).json({
         message: "Admin successfully created",
         admin: savedAdmin,
@@ -874,7 +868,6 @@ const usersController = {
       }
       console.log(err);
       return res.status(502).json({ err });
-
     }
   },
 };
