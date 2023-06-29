@@ -135,6 +135,18 @@ export function validateUserClientAddress(_reqBody) {
 
   return joiSchema.validate(_reqBody);
 }
+export function validateUserClientAddressPut(_reqBody) {
+  const joiSchema = Joi.object({
+    country: Joi.string().min(2).max(150).required(),
+    state: Joi.string().min(2).max(150).required(),
+    city: Joi.string().min(2).max(150).required(),
+    address1: Joi.string().min(2).max(150).required(),
+    address2: Joi.string().min(0).max(150).allow(null, " "),
+    _id: Joi.string().min(2).max(150).required(),
+  });
+
+  return joiSchema.validate(_reqBody);
+}
 
 export function validateUserClientCard(_reqBody) {
   const joiSchema = Joi.object({
@@ -143,6 +155,20 @@ export function validateUserClientCard(_reqBody) {
     expirationDate: Joi.string().min(2).max(150).required(),
     cardholder: Joi.string().min(2).max(150).required(),
     securityCode: Joi.string().min(2).max(150).required(),
+  });
+
+  return joiSchema.validate(_reqBody);
+}
+
+export function validateUserClientCardPut(_reqBody) {
+  const joiSchema = Joi.object({
+    cardType: Joi.string().min(2).max(150).required(),
+    cardNumber: Joi.string().min(2).max(150).required(),
+    expirationDate: Joi.string().min(2).max(150).required(),
+    cardholder: Joi.string().min(2).max(150).required(),
+    securityCode: Joi.string().min(2).max(150).required(),
+    securityCode: Joi.string().min(2).max(150).required(),
+    _id: Joi.string().min(2).max(150).required(),
   });
 
   return joiSchema.validate(_reqBody);
@@ -186,6 +212,30 @@ export function validateUserSecurity(_reqBody) {
     password: Joi.string().min(3).max(150).required(),
     confirmpassword: Joi.string().min(3).max(150).required(),
   }).required();
+
+  return joiSchema.validate(_reqBody);
+}
+
+export function validateUserClientAddressToDelete(_reqBody) {
+  const joiSchema = Joi.object({
+    addressToDelete: Joi.string().min(2).max(150).required(),
+  });
+
+  return joiSchema.validate(_reqBody);
+}
+
+export function validateUserClientCardToDelete(_reqBody) {
+  const joiSchema = Joi.object({
+    cardToDelete: Joi.string().min(2).max(150).required(),
+  });
+
+  return joiSchema.validate(_reqBody);
+}
+
+export function validateUserClientCartItemToDelete(_reqBody) {
+  const joiSchema = Joi.object({
+    itemToDelete: Joi.string().min(2).max(150).required(),
+  });
 
   return joiSchema.validate(_reqBody);
 }

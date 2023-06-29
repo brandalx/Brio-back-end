@@ -1,35 +1,81 @@
 import mongoose from "mongoose";
 
-const productSchema = new mongoose.Schema({
-  productRef: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Product",
-    required: true,
+const paymentSummarySchema = new mongoose.Schema(
+  {
+    subtotal: {
+      type: Number,
+      required: true,
+    },
+    tips: {
+      type: Number,
+    },
+    shipping: {
+      type: Number,
+    },
+    totalAmount: {
+      type: Number,
+      required: true,
+    },
   },
-  amount: {
-    type: Number,
-    required: true,
-  },
-});
+  { _id: false }
+);
 
-const orderSchema = new mongoose.Schema({
-  _id: mongoose.Schema.Types.ObjectId,
-  restaurantRef: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Restaurant",
-    required: true,
+const productSchema = new mongoose.Schema(
+  {
+    productId: {
+      type: String,
+      required: true,
+    },
+    amount: {
+      type: Number,
+      required: true,
+    },
+
+    restaurantId: {
+      type: String,
+      required: true,
+    },
+  },
+  { _id: false }
+);
+
+const userOrderSchema = new mongoose.Schema({
+  userdata: {
+    selectedAddress: {
+      type: String,
+      required: true,
+    },
+    selectedPaymentMethod: {
+      type: String,
+      required: true,
+    },
+    status: {
+      type: String,
+      required: true,
+      enum: ["Placed"],
+    },
+    paymentSummary: {
+      type: paymentSummarySchema,
+      required: true,
+    },
+  },
+  ordersdata: {
+    products: {
+      type: [productSchema],
+      required: true,
+    },
+    restaurants: {
+      type: [String],
+      required: true,
+    },
   },
   userRef: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
+    type: String,
   },
-  orderedTime: {
+  creationDate: {
     type: Date,
     default: Date.now,
-    required: true,
   },
-  products: [productSchema],
 });
 
-export const ordersModel = mongoose.model("orders", orderSchema);
+export const ordersModel = mongoose.model("orders", userOrderSchema);

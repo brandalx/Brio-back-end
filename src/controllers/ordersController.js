@@ -1,4 +1,5 @@
 import { ordersModel } from "../models/orders.js";
+import { productsModel } from "../models/products.js";
 import { UserClientModel } from "../models/userClient.js";
 import {
   validateOrder,
@@ -14,6 +15,23 @@ const ordersController = {
       return res.status(502).json({ err });
     }
   },
+
+  async getUserOrders(req, res) {
+    const id = req.tokenData._id;
+
+    try {
+      let data = await ordersModel.find({ userRef: id });
+      if (data) {
+        res.json(data);
+      } else {
+        res.status(404).json({ error: "Orders not found" });
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ error: err });
+    }
+  },
+
   async getOrdersById(req, res) {
     let idParams = req.params.id;
 
@@ -31,62 +49,73 @@ const ordersController = {
   },
 
   async postOrder(req, res) {
-    const id = req.params.id;
+    const id = req.tokenData._id;
 
+    const orderBody = req.body.checkoutBodyData;
     try {
       let user = await UserClientModel.findOne({ _id: id });
       if (!user) {
         return res.status(401).json({ err: "User not found" });
       }
-
-      // todo: pass auth middleware
-
-      let validBodyClient = validateUserOrder(req.body.userdata);
+      //validating order body
+      let validBodyClient = validateUserOrder(orderBody);
       if (validBodyClient.error) {
         return res.status(400).json(validBodyClient.error.details);
       }
+      console.log(orderBody);
 
-      const newOrder = {
-        restaurant: req.body.userdata.restaurant,
-        creationDate: new Date(),
-        creationTime: new Date(),
-        status: req.body.userdata.status,
-        paymentSummary: req.body.userdata.paymentSummary,
+      if (!user.cart) {
+        return res.status(404).json({ error: "Cart data not found" });
+      }
+      //validating order summary (in case if user will modify it in client)
+      let productsArr = [];
+      for (let item of user.cart) {
+        console.log(item.productId);
+        let product = await productsModel.findById(item.productId);
+        if (product) {
+          product.price = product.price * item.productAmount;
+
+          productsArr.push(product);
+        } else {
+          productsArr.push(null);
+        }
+      }
+
+      let presummary = productsArr.reduce((total, item) => {
+        return (total += item ? item.price : 0);
+      }, 0);
+      let shipping = 5; //TODO: REPLACE IN RESTAURANT SHIPPING AMOUNT
+      let tips = orderBody.userdata.paymentSummary.tips;
+      let setPayment = {
+        tips: tips.toFixed(2),
+        subtotal: presummary.toFixed(2),
+        shipping: presummary > 0 ? shipping.toFixed(2) : 0,
+        totalAmount: (shipping + presummary + tips).toFixed(2),
       };
-
-      user.orders.push(newOrder);
-
+      console.log(setPayment);
+      if (!setPayment) {
+        return res.status(502).json({ error: false });
+      }
+      // updating summary from server data
+      orderBody.userdata.paymentSummary.tips = setPayment.tips;
+      orderBody.userdata.paymentSummary.subtotal = setPayment.subtotal;
+      orderBody.userdata.paymentSummary.shipping = setPayment.shipping;
+      orderBody.userdata.paymentSummary.totalAmount = setPayment.totalAmount;
+      let newOrder = await new ordersModel(orderBody);
+      newOrder.userRef = id;
+      await newOrder.save();
+      console.log(newOrder);
+      let newOrderUser = {
+        userRef: newOrder.userRef,
+        restaurant: newOrder.ordersdata.restaurants,
+        creationDate: newOrder.creationDate,
+        paymentSummary: newOrder.userdata.paymentSummary,
+        orderRef: newOrder._id,
+      };
+      user.orders.push(newOrderUser);
+      user.cart = [];
       await user.save();
 
-      const createdOrder = user.orders[user.orders.length - 1];
-
-      const orderId = createdOrder._id.toString(); // Convert objectId to string
-
-      const lastOrderIndex = user.orders.length - 1;
-      // user.orders[lastOrderIndex].orderId = orderId;
-      user.orders[lastOrderIndex].orderId = orderId;
-      await user.save();
-
-      console.log(user.orders);
-
-      let lastOrder = user.orders[lastOrderIndex];
-      let products = req.body.ordersdata.products.map((item) => {
-        return {
-          productRef: item.productId,
-          amount: item.amount,
-        };
-      });
-
-      let newOrderRefs = {
-        restaurantRef: lastOrder.restaurant,
-        userRef: user._id,
-        orderedTime: lastOrder.creationTime,
-        products: products,
-      };
-      const order = new ordersModel(newOrderRefs); // Create a new instance of the ordersModel
-      order._id = orderId; // Assign the orderId as the _id field of the order document
-      let savedObject = await order.save();
-      user.orders[lastOrderIndex].orderId = savedObject._id;
       res.status(201).json({ msg: true });
     } catch (err) {
       console.log(err);

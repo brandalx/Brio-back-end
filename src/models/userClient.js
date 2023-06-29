@@ -64,22 +64,13 @@ const userClientSchema = new mongoose.Schema({
   ],
   orders: [
     {
+
+      userRef: String,
       orderId: String,
       restaurant: [String],
       creationDate: Date,
-      creationTime: String,
-      status: {
-        type: String,
-      },
-
-      paymentSummary: {
-        subtotal: Number,
-        couponCode: String,
-        tips: Number,
-        shipping: Number,
-        discount: Number,
-        totalAmount: Number,
-      },
+      paymentSummary: Object,
+      orderRef: String,
     },
   ],
 

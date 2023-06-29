@@ -1,6 +1,7 @@
 import { UserClientModel } from "../models/userClient.js";
 import bcrypt from "bcrypt";
 import express from "express";
+import mongoose from "mongoose";
 import {
   validateUserClientAddress,
   validateUserClientCard,
@@ -9,11 +10,18 @@ import {
   validateUserPost,
   validateUserLogin,
   validateUserSecurity,
+  validateUserClientAddressToDelete,
+  validateUserClientAddressPut,
+  validateUserClientCardPut,
+  validateUserClientCardToDelete,
+  validateUserClientCartItemToDelete,
 } from "../validation/userClientValidation.js";
 
 import { createToken } from "../services/token.js";
+import { productsModel } from "../models/products.js";
+import fs from "fs";
+import path from "path";
 import Admin from "../models/userSeller.js";
-
 import mongoose from "mongoose";
 import Restaurants from "../models/restaurants.js";
 import jwt from "jsonwebtoken";
@@ -31,6 +39,51 @@ const usersController = {
       res.status(502).json({ err });
     }
   },
+
+  async GetPreSummary(req, res) {
+    try {
+      const id = req.tokenData._id;
+      if (!id) {
+        return res.status(400).json({ error: "token id required" });
+      }
+
+      let user = await UserClientModel.findById(id);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      if (!user.cart) {
+        return res.status(404).json({ error: "Cart data not found" });
+      }
+
+      let products = [];
+      for (let item of user.cart) {
+        console.log(item.productId);
+        let product = await productsModel.findById(item.productId);
+        if (product) {
+          product.price = product.price * item.productAmount;
+
+          products.push(product);
+        } else {
+          products.push(null);
+        }
+      }
+
+      let presummary = products.reduce((total, item) => {
+        return (total += item ? item.price : 0);
+      }, 0);
+      let shipping = 5;
+      res.json({
+        subtotal: presummary.toFixed(2),
+        shipping: presummary > 0 ? shipping.toFixed(2) : 0, //will be replaced by restaurant later
+        totalAmount: (shipping + presummary).toFixed(2),
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ err: err.message });
+    }
+  },
+
   async getAllUsers(req, res) {
     try {
       let data = await UserClientModel.find({});
@@ -42,6 +95,10 @@ const usersController = {
   },
 
   async getUserById(req, res) {
+    const id = req.tokenData._id;
+    if (!id) {
+      res.status(200).json({ error: "token id required" });
+    }
     const currentUserId = req.tokenData._id;
     const requestedUserId = req.params.id;
     const token = req.headers["x-api-key"];
@@ -53,6 +110,7 @@ const usersController = {
         console.log(decoded);
       }
     });
+
 
     try {
       if (currentUserId !== requestedUserId && req.tokenData.role !== "ADMIN") {
@@ -117,8 +175,10 @@ const usersController = {
     }
   },
   async getUserOrders(req, res) {
-    // let idParams = req.params.id;
-    const tokenDataId = req.tokenData._id;
+    const id = req.tokenData._id;
+    if (!id) {
+      res.status(200).json({ error: "token id required" });
+    }
 
     try {
       let user = await UserClientModel.findById(tokenDataId);
@@ -135,7 +195,10 @@ const usersController = {
   },
 
   async putUserData(req, res) {
-    const id = req.params.id;
+    const id = req.tokenData._id;
+    if (!id) {
+      res.status(200).json({ error: "token id required" });
+    }
 
     try {
       let user = await UserClientModel.findOne({ _id: id });
@@ -162,6 +225,9 @@ const usersController = {
     // const id = req.params.id;
 
     const id = req.tokenData._id;
+    if (!id) {
+      res.status(200).json({ error: "token id required" });
+    }
 
     try {
       let user = await UserClientModel.findOne({ _id: id });
@@ -203,8 +269,198 @@ const usersController = {
     }
   },
 
+  async putUserAddress(req, res) {
+    const id = req.tokenData._id;
+    if (!id) {
+      res.status(200).json({ error: "token id required" });
+    }
+
+    try {
+      let user = await UserClientModel.findOne({ _id: id });
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      let validBody = validateUserClientAddressPut(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+      const addressId = req.body._id; // keep it as string
+      const addressIndex = user.address.findIndex((item) => {
+        return item._id.toString() === addressId; // convert ObjectId to string for comparison
+      });
+
+      if (addressIndex === -1) {
+        return res.status(502).json({ err: "Address not found" });
+      }
+
+      user.address[addressIndex] = req.body;
+      await user.save();
+      return res.status(201).json({ msg: true });
+    } catch (err) {
+      console.log(err);
+      return res.status(502).json({ err });
+    }
+  },
+
+  async deleteUserAddress(req, res) {
+    const id = req.tokenData._id;
+    if (!id) {
+      res.status(200).json({ error: "token id required" });
+    }
+
+    try {
+      const addressId = req.body.addressToDelete;
+      let user = await UserClientModel.findOne({ _id: id });
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      let validBody = validateUserClientAddressToDelete(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+      console.log(user.address);
+
+      const existingAddress = user.address.find((item) => {
+        return item._id.toString() === addressId.toString();
+      });
+
+      if (!existingAddress) {
+        return res.status(400).json({ err: "Address does not exist" });
+      }
+
+      const addressIndex = user.address.indexOf(existingAddress);
+      user.address.splice(addressIndex, 1);
+
+      await user.save();
+
+      res.status(200).json({ msg: true });
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ err });
+    }
+  },
+
+  async deleteUserCard(req, res) {
+    const id = req.tokenData._id;
+    if (!id) {
+      res.status(200).json({ error: "token id required" });
+    }
+
+    try {
+      const cardId = req.body.cardToDelete;
+      let user = await UserClientModel.findOne({ _id: id });
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      let validBody = validateUserClientCardToDelete(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+
+      const existingCard = user.creditdata.find((item) => {
+        return item._id.toString() === cardId.toString();
+      });
+
+      if (!existingCard) {
+        return res.status(400).json({ err: "Card does not exist" });
+      }
+
+      const cardIndex = user.creditdata.indexOf(existingCard);
+      user.creditdata.splice(cardIndex, 1);
+
+      await user.save();
+
+      res.status(200).json({ msg: true });
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ err });
+    }
+  },
+  //todo: add bcrypt
+
+  async deleteItemCart(req, res) {
+    try {
+      const itemId = req.body.itemToDelete;
+
+      const id = req.tokenData._id;
+      if (!id) {
+        res.status(200).json({ error: "token id required" });
+      }
+
+      let user = await UserClientModel.findOne({ _id: id });
+
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      let validBody = validateUserClientCartItemToDelete(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+
+      console.log(itemId);
+      const existingItem = user.cart.find((item) => {
+        return item._id.toString() === itemId.toString();
+      });
+
+      if (!existingItem) {
+        return res.status(400).json({ err: "Item does not exist" });
+      }
+
+      const itemIndex = user.cart.indexOf(existingItem);
+      user.cart.splice(itemIndex, 1);
+
+      await user.save();
+
+      res.status(200).json({ msg: true });
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ err });
+    }
+  },
+
+  async putUserCard(req, res) {
+    const id = req.tokenData._id;
+    if (!id) {
+      res.status(200).json({ error: "token id required" });
+    }
+
+    try {
+      let user = await UserClientModel.findOne({ _id: id });
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      let validBody = validateUserClientCardPut(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+      const cardId = req.body._id;
+      const cardIndex = user.creditdata.findIndex((item) => {
+        return item._id.toString() === cardId;
+      });
+
+      if (cardIndex === -1) {
+        return res.status(502).json({ err: "Address not found" });
+      }
+
+      user.creditdata[cardIndex] = req.body;
+      await user.save();
+      return res.status(201).json({ msg: true });
+    } catch (err) {
+      console.log(err);
+      return res.status(502).json({ err });
+    }
+  },
+  //todo: add bcrypt
   async postUserCard(req, res) {
-    const id = req.params.id;
+    const id = req.tokenData._id;
+    if (!id) {
+      res.status(200).json({ error: "token id required" });
+    }
 
     try {
       let user = await UserClientModel.findOne({ _id: id });
@@ -242,10 +498,14 @@ const usersController = {
     }
   },
   async postToCart(req, res) {
-    const id = req.params.id;
+    const idParams = req.params.id;
+    const id = req.tokenData._id;
 
     try {
-      let user = await UserClientModel.findOne({ _id: id });
+      if (id != idParams) {
+        return res.status(401).json({ err: "User does not match" });
+      }
+      let user = await UserClientModel.findOne({ _id: idParams });
       if (!user) {
         return res.status(401).json({ err: "User not found" });
       }
@@ -267,7 +527,12 @@ const usersController = {
         // Update the existing product object in the cart array
         user.cart[existingProductIndex] = req.body;
         await user.save();
-        return res.status(201).json({ msg: true });
+
+        let user2 = await UserClientModel.findOne({ _id: idParams });
+
+        return res
+          .status(201)
+          .json({ msg: true, _id: user2.cart[existingProductIndex]._id });
       }
       //if not keeping going
 
@@ -473,27 +738,102 @@ const usersController = {
       return res.status(502).json({ err });
     }
   },
-  // Функция для создания нового админа
+
+  async postUserAvatar(req, res) {
+    const id = req.tokenData._id;
+    if (!id) {
+      res.status(200).json({ error: "token id required" });
+    }
+
+    try {
+      let user = await UserClientModel.findOne({ _id: id });
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+      console.log(req.files.myFile);
+      const file = req.files.myFile;
+      console.log(file);
+      if (!file) {
+        return res
+          .status(400)
+          .json({ err: "You need to send file to this endpoint" });
+      }
+      // Check that the file size is not greater than 5MB
+      if (file.size >= 1024 * 1024 * 5) {
+        return res.status(400).json({ err: "File too large: max 5 MB" });
+      }
+      console.log(file);
+      // Check that only certain image file extensions are allowed (e.g., .jpg, .png, .jpeg)
+      const allowedExtensions = [".jpg", ".jpeg", ".png"];
+      // Get the file extension
+      const fileExtension = path.extname(file.name);
+      // console.log(!allowedExtensions.includes(fileExtension), file.name);
+      if (!allowedExtensions.includes(fileExtension)) {
+        return res.status(400).json({
+          err: "You can only upload image files in format of .jpg, .png, .jpeg",
+        });
+      }
+      // Upload the file
+      // To make the file unique, use the user's ID and the current date in the filename
+      const dirPath = path.join(
+        "public",
+        "images",
+        "users",
+        id.toString(),
+        "avatars"
+      );
+      const fileUrl = path.join(dirPath, `avatar${fileExtension}`);
+
+      // Check if directory exists, if not, create it
+      fs.promises
+        .mkdir(dirPath, { recursive: true })
+        .then(() => {
+          file.mv(fileUrl, (err) => {
+            if (err) {
+              return res.status(400).json({ err });
+            }
+          });
+        })
+        .then(() => {
+          const excludedPath = fileUrl.replace(
+            new RegExp(`^public\\${path.sep}`),
+            ""
+          );
+
+          user.avatar = excludedPath;
+          console.log(excludedPath);
+          user.save();
+          res.json({ msg: "File uploaded", excludedPath });
+        })
+
+        .catch((err) => {
+          console.log(err);
+          res.status(502).json({ err });
+        });
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ err });
+
   async postNewAdmin(req, res) {
     const { adminData } = req.body;
 
-    // Проверка данных
+
     if (!adminData) {
       return res.status(400).json({ error: "Missing admin data" });
     }
 
-    // Проверка совпадения пароля
+
     if (adminData.password !== adminData.confirmpassword) {
       return res
         .status(400)
         .json({ error: "password not the same as confirmed password" });
     }
 
-    // Назначение роли
+
     const role = "ADMIN";
 
     try {
-      // Инициализация базового объекта со значениями по умолчанию
+ 
       let baseAdmin = {
         firstname: "",
         lastname: "",
@@ -504,7 +844,7 @@ const usersController = {
         role: role,
       };
 
-      // Объединение базового объекта с данными запроса
+     
       let adminBody = { ...baseAdmin, ...adminData };
 
       let admin = new UserClientModel(adminBody);
@@ -512,14 +852,14 @@ const usersController = {
       admin.password = await bcrypt.hash(admin.password, 10);
       const savedAdmin = await admin.save();
 
-      // Проверка успешности сохранения админа
+    
       if (!savedAdmin._id) {
         return res.status(500).json({ error: "Could not create admin" });
       }
 
-      savedAdmin.password = "****"; // Замена пароля на звездочки перед отправкой в ответ
+      savedAdmin.password = "****"; 
 
-      // Возвращение идентификатора нового админа
+     
       return res.status(201).json({
         message: "Admin successfully created",
         admin: savedAdmin,
@@ -534,6 +874,7 @@ const usersController = {
       }
       console.log(err);
       return res.status(502).json({ err });
+
     }
   },
 };
