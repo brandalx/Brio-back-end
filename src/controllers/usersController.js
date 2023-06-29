@@ -21,6 +21,11 @@ import { createToken } from "../services/token.js";
 import { productsModel } from "../models/products.js";
 import fs from "fs";
 import path from "path";
+import Admin from "../models/userSeller.js";
+import mongoose from "mongoose";
+import Restaurants from "../models/restaurants.js";
+import jwt from "jsonwebtoken";
+
 const usersController = {
   randomStars() {
     let numOfStars = Math.floor(Math.random() * 4) + 6;
@@ -94,9 +99,26 @@ const usersController = {
     if (!id) {
       res.status(200).json({ error: "token id required" });
     }
+    const currentUserId = req.tokenData._id;
+    const requestedUserId = req.params.id;
+    const token = req.headers["x-api-key"];
+
+    jwt.verify(token, process.env.TOKENSECRET1, (err, decoded) => {
+      if (err) {
+        return res.status(403).json({ message: "Invalid token." });
+      } else {
+        console.log(decoded);
+      }
+    });
+
 
     try {
-      let data = await UserClientModel.findById({ _id: idParams });
+      if (currentUserId !== requestedUserId && req.tokenData.role !== "ADMIN") {
+        return res.status(403).json({
+          message: "You do not have permission to view this profile.",
+        });
+      }
+      let data = await UserClientModel.findById({ _id: requestedUserId });
       res.json(data);
     } catch (err) {
       console.log(err);
@@ -587,7 +609,20 @@ const usersController = {
       return res.status(502).json({ err });
     }
   },
+  async getUserInfo(req, res) {
+    try {
+      let user = await UserClientModel.findOne(
+        { _id: req.tokenData._id },
+        //deletes password from resposnse
+        { password: 0 }
+      );
+      res.json(user);
+    } catch (err) {
+      console.log(err);
 
+      return res.status(502).json({ err });
+    }
+  },
   async postLogin(req, res) {
     let validBody = validateUserLogin(req.body);
     if (validBody.error) {
@@ -601,10 +636,16 @@ const usersController = {
           .status(401)
           .json({ err: "Email not found / user dont exist" });
       }
+
+      console.log(`Entered password: ${req.body.password}`);
+      console.log(`Hashed password in DB: ${user.password}`);
+
       let validPassword = await bcrypt.compare(
         req.body.password,
         user.password
       );
+
+      console.log(`Result of password comparison: ${validPassword}`);
 
       if (!validPassword) {
         return res
@@ -618,21 +659,6 @@ const usersController = {
     } catch (err) {
       console.log(err);
       res.status(502).json({ err });
-    }
-  },
-
-  async getUserInfo(req, res) {
-    try {
-      let user = await UserClientModel.findOne(
-        { _id: req.tokenData._id },
-        //deletes password from resposnse
-        { password: 0 }
-      );
-      res.json(user);
-    } catch (err) {
-      console.log(err);
-
-      return res.status(502).json({ err });
     }
   },
 
@@ -787,6 +813,68 @@ const usersController = {
     } catch (err) {
       console.log(err);
       res.status(502).json({ err });
+
+  async postNewAdmin(req, res) {
+    const { adminData } = req.body;
+
+
+    if (!adminData) {
+      return res.status(400).json({ error: "Missing admin data" });
+    }
+
+
+    if (adminData.password !== adminData.confirmpassword) {
+      return res
+        .status(400)
+        .json({ error: "password not the same as confirmed password" });
+    }
+
+
+    const role = "ADMIN";
+
+    try {
+ 
+      let baseAdmin = {
+        firstname: "",
+        lastname: "",
+        email: "",
+        password: "",
+        phone: "",
+        restaurantId: "",
+        role: role,
+      };
+
+     
+      let adminBody = { ...baseAdmin, ...adminData };
+
+      let admin = new UserClientModel(adminBody);
+
+      admin.password = await bcrypt.hash(admin.password, 10);
+      const savedAdmin = await admin.save();
+
+    
+      if (!savedAdmin._id) {
+        return res.status(500).json({ error: "Could not create admin" });
+      }
+
+      savedAdmin.password = "****"; 
+
+     
+      return res.status(201).json({
+        message: "Admin successfully created",
+        admin: savedAdmin,
+      });
+    } catch (err) {
+      console.log(err);
+      if (err.code == 11000) {
+        return res.status(400).json({
+          msg: "This email is already exist in our system, please try log in again ",
+          code: 11000,
+        });
+      }
+      console.log(err);
+      return res.status(502).json({ err });
+
     }
   },
 };

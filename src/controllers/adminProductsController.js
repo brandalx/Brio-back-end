@@ -87,6 +87,21 @@ const adminProductsController = {
       res.status(502).json({ error: err });
     }
   },
+  async getProductsByCategory(req, res) {
+    let categoryName = req.query.categoryName;
+
+    try {
+      let data = await productsModel.find({ categoryName: categoryName });
+      if (data) {
+        res.json(data);
+      } else {
+        res.status(404).json({ error: "Products not found for this category" });
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ error: err });
+    }
+  },
 };
 
 export default adminProductsController;

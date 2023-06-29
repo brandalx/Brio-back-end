@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 let schema = new mongoose.Schema({
   categoryName: String,
+  restaurantId: String,
   itemsId: Array,
 });
 export const categoriesModel = mongoose.model("categories", schema);

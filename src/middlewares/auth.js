@@ -26,7 +26,7 @@ export const authAdmin = (req, res, next) => {
       .json({ err: "You must send a token to this endpoint" });
   }
   try {
-    let decodeToken = jwt.verify(token, config.tokenSecret);
+    let decodeToken = jwt.verify(token, tokenSecret2);
     // Checking if the user is an admin
     if (decodeToken.role != "ADMIN") {
       return res
