@@ -159,7 +159,9 @@ const usersController = {
   },
   async getUserCreditData(req, res) {
     let idParams = req.params.id;
-
+    if (idParams != req.tokenData._id) {
+      res.status(200).json({ error: "token id does not matches" });
+    }
     try {
       let user = await UserClientModel.findById(idParams);
       if (user) {
@@ -615,6 +617,14 @@ const usersController = {
         //deletes password from resposnse
         { password: 0 }
       );
+      let excludedCardsArr = [];
+      user.creditdata.map((item) => {
+        let num = item.cardNumber.length - 4;
+        let star = "*".repeat(num) + item.cardNumber.slice(-4);
+
+        item.cardNumber = star;
+      });
+
       res.json(user);
     } catch (err) {
       console.log(err);
