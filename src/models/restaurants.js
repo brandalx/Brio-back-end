@@ -5,8 +5,26 @@ const restaurantSchema = new mongoose.Schema({
   address: String,
   location: String,
   image: String,
-  reviews: Object,
+  reviews: [
+    {
+      commentRef: String,
+      userRef: String,
+      rate: Number || null,
+      comment: String,
+      datecreated: {
+        type: Date,
+        default: Date.now,
+      },
+      likes: Number,
+      dislikes: Number,
+    },
+  ],
   tags: Object,
+  restaurantFilters: {
+    diningOptions: String,
+    priceRange: Number,
+    deliveryTime: Number,
+  },
   email: String,
   description: String,
   minprice: Number,
