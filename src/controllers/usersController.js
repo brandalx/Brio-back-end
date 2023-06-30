@@ -518,6 +518,10 @@ const usersController = {
         return res.status(400).json(validBody.error.details);
       }
 
+      if (req.body.productAmount <= 0) {
+        return res.status(400).json({ error: "amount is cannot be 0 or less" });
+      }
+
       // is if the same product id exists
       const existingProductIndex = user.cart.findIndex((cart) => {
         // finding product
