@@ -74,7 +74,13 @@ const ordersController = {
         let product = await productsModel.findById(item.productId);
         if (product) {
           product.price = product.price * item.productAmount;
-
+          orderBody.ordersdata.products.map((item2, index) => {
+            if (item2.productId === item.productId) {
+              item2.priceItem = product.price;
+              console.log("true");
+              console.log(item2.priceItem);
+            }
+          });
           productsArr.push(product);
         } else {
           productsArr.push(null);
@@ -100,6 +106,7 @@ const ordersController = {
       orderBody.userdata.paymentSummary.tips = setPayment.tips;
       orderBody.userdata.paymentSummary.subtotal = setPayment.subtotal;
       orderBody.userdata.paymentSummary.shipping = setPayment.shipping;
+
       orderBody.userdata.paymentSummary.totalAmount = setPayment.totalAmount;
       let newOrder = await new ordersModel(orderBody);
       newOrder.userRef = id;

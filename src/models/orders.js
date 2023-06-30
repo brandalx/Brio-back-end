@@ -30,6 +30,10 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    priceItem: {
+      type: Number,
+      required: true,
+    },
 
     restaurantId: {
       type: String,
