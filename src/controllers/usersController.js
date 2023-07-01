@@ -636,6 +636,38 @@ const usersController = {
       return res.status(502).json({ err });
     }
   },
+
+  async getUserPublicInfo(req, res) {
+    const id = req.params.id;
+    try {
+      let user = await UserClientModel.findOne(
+        { _id: id },
+        //deletes password from resposnse
+        {
+          password: 0,
+          cart: 0,
+          orders: 0,
+          birthdate: 0,
+          nickname: 0,
+
+          address: 0,
+          creditdata: 0,
+          role: 0,
+          favorites: 0,
+          phone: 0,
+          emailnotifications: 0,
+          date_created: 0,
+          notes: 0,
+        }
+      );
+
+      res.json(user);
+    } catch (err) {
+      console.log(err);
+
+      return res.status(502).json({ err });
+    }
+  },
   async postLogin(req, res) {
     let validBody = validateUserLogin(req.body);
     if (validBody.error) {

@@ -19,6 +19,7 @@ router.post("/:id/posttocart", auth, usersController.postToCart);
 router.post("/new", usersController.postUser);
 router.post("/login", usersController.postLogin);
 router.get("/info/user", auth, usersController.getUserInfo);
+router.get("/info/public/user/:id", usersController.getUserPublicInfo);
 router.put("/security", auth, usersController.putUserSecurity);
 
 router.delete("/address/delete", auth, usersController.deleteUserAddress);
@@ -28,6 +29,5 @@ router.delete("/cart/delete", auth, usersController.deleteItemCart);
 router.put("/card/edit", auth, usersController.putUserCard);
 router.post("/user/avatar", auth, usersController.postUserAvatar);
 router.post("/:id/notes", authAdmin, usersController.postUserNotes);
-
 
 export default router;
