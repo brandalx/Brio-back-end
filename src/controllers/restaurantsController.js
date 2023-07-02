@@ -1,5 +1,8 @@
 import Restaurants from "../models/restaurants.js";
-import { validateRestaurantComment } from "../validation/restaurantClientValidation.js";
+import {
+  validateRestaurantComment,
+  validateRestaurantLike,
+} from "../validation/restaurantClientValidation.js";
 import { UserClientModel } from "../models/userClient.js";
 const restaurantController = {
   async getAllRestaurants(req, res) {
@@ -142,6 +145,105 @@ const restaurantController = {
     } catch (err) {
       console.log(err);
       return res.status(500).json({ error: err });
+    }
+  },
+
+  // Like a comment
+  async postUserLike(req, res) {
+    const userId = req.tokenData._id;
+    const { commentId, restaurantId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: "token id required" });
+    }
+
+    let validBody = validateRestaurantLike(req.body);
+    if (validBody.error) {
+      return res.status(400).json(validBody.error.details);
+    }
+
+    try {
+      let user = await UserClientModel.findOne({ _id: userId });
+      if (!user) {
+        return res.status(401).json({ error: "User not found" });
+      }
+
+      const restaurant = await Restaurants.findById(restaurantId);
+      if (!restaurant) {
+        return res.status(404).json({ error: "Restaurant not found" });
+      }
+
+      const comment = restaurant.reviews.find(
+        (review) => review.commentRef === commentId
+      );
+      if (!comment) {
+        return res.status(404).json({ error: "Comment not found" });
+      }
+
+      const indexOfComment = comment.likes.indexOf(userId);
+      if (indexOfComment === -1) {
+        comment.likes.push(userId);
+        // Remove user id from dislikes if it exists
+        const dislikeIndex = comment.dislikes.indexOf(userId);
+        if (dislikeIndex !== -1) comment.dislikes.splice(dislikeIndex, 1);
+        res.status(200).send("The comment has been liked");
+      } else {
+        comment.likes.splice(indexOfComment, 1);
+        res.status(200).send("The like has been removed");
+      }
+
+      await restaurant.save();
+      // res.status(201).json({ msg: true });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ error: error });
+    }
+  },
+
+  // Dislike a comment
+  async postUserDislike(req, res) {
+    const userId = req.tokenData._id;
+    const { commentId, restaurantId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: "token id required" });
+    }
+
+    try {
+      let user = await UserClientModel.findOne({ _id: userId });
+      if (!user) {
+        return res.status(401).json({ error: "User not found" });
+      }
+
+      const restaurant = await Restaurants.findById(restaurantId);
+      if (!restaurant) {
+        return res.status(404).json({ error: "Restaurant not found" });
+      }
+
+      const comment = restaurant.reviews.find(
+        (review) => review.commentRef === commentId
+      );
+      if (!comment) {
+        return res.status(404).json({ error: "Comment not found" });
+      }
+
+      const indexOfComment = comment.dislikes.indexOf(userId);
+      if (indexOfComment === -1) {
+        comment.dislikes.push(userId);
+        // Remove user id from likes if it exists
+        const likeIndex = comment.likes.indexOf(userId);
+        if (likeIndex !== -1) comment.likes.splice(likeIndex, 1);
+        res.status(200).send("The comment has been disliked");
+      } else {
+        comment.dislikes.splice(indexOfComment, 1);
+        res.status(200).send("The dislike has been removed");
+      }
+
+      await restaurant.save();
+      // res.status(201).json({ msg: true });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ error: error });
     }
   },
 };

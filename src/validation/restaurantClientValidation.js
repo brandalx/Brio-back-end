@@ -30,4 +30,13 @@ export function validateRestaurantComment(_reqBody) {
   return joiSchema.validate(_reqBody);
 }
 
+export function validateRestaurantLike(_reqBody) {
+  const joiSchema = Joi.object({
+    commentId: Joi.string().min(3).max(150).required(),
+    restaurantId: Joi.string().min(3).max(150).required(),
+  }).required();
+
+  return joiSchema.validate(_reqBody);
+}
+
 //todo: correct validation according on future requests (in future releases)
