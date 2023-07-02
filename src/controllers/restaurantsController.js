@@ -124,8 +124,8 @@ const restaurantController = {
         return res.status(401).json({ error: "Restaurant not found" });
       }
       let preBodyComment = req.body;
-      preBodyComment.likes = 0;
-      preBodyComment.dislikes = 0;
+      preBodyComment.likes = [];
+      preBodyComment.dislikes = [];
       preBodyComment.userRef = id;
       const savedReview = restaurant.reviews.create(preBodyComment);
 
