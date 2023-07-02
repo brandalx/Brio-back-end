@@ -642,14 +642,13 @@ const usersController = {
     try {
       let user = await UserClientModel.findOne(
         { _id: id },
-        //deletes password from resposnse
+
         {
           password: 0,
           cart: 0,
           orders: 0,
           birthdate: 0,
           nickname: 0,
-
           address: 0,
           creditdata: 0,
           role: 0,

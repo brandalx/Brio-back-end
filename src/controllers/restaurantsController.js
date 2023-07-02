@@ -1,4 +1,6 @@
 import Restaurants from "../models/restaurants.js";
+import { validateRestaurantComment } from "../validation/restaurantClientValidation.js";
+import { UserClientModel } from "../models/userClient.js";
 const restaurantController = {
   async getAllRestaurants(req, res) {
     try {
@@ -93,6 +95,53 @@ const restaurantController = {
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: err });
+    }
+  },
+
+  async postUserComment(req, res) {
+    const id = req.tokenData._id;
+
+    if (!id) {
+      return res.status(400).json({ error: "token id required" });
+    }
+
+    try {
+      let user = await UserClientModel.findOne({ _id: id });
+      if (!user) {
+        return res.status(401).json({ error: "User not found" });
+      }
+
+      let validBody = validateRestaurantComment(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+
+      let restaurant = await Restaurants.findOne({ _id: req.body.commentRef });
+      if (!restaurant) {
+        return res.status(401).json({ error: "Restaurant not found" });
+      }
+      let preBodyComment = req.body;
+      preBodyComment.likes = 0;
+      preBodyComment.dislikes = 0;
+      preBodyComment.userRef = id;
+      const savedReview = restaurant.reviews.create(preBodyComment);
+
+      restaurant.reviews.push(savedReview);
+      await restaurant.save();
+
+      let userCommentBody = {
+        commentRef: savedReview._id,
+        restaurantRef: restaurant._id,
+        datecreated: Date.now(),
+      };
+
+      user.comments.push(userCommentBody);
+      await user.save();
+
+      res.status(201).json({ msg: true });
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({ error: err });
     }
   },
 };

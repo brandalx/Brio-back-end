@@ -4,6 +4,7 @@ import { auth, authAdmin } from "../middlewares/auth.js";
 
 const router = Router();
 router.get("/", restaurantController.getAllRestaurants);
+router.post("/comment/add", auth, restaurantController.postUserComment);
 router.get("/:id/", restaurantController.getRestaurantById);
 router.get("/:id/products", restaurantController.getRestaurantProducts);
 router.put(
