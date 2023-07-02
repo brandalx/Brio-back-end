@@ -174,7 +174,7 @@ const restaurantController = {
       }
 
       const comment = restaurant.reviews.find(
-        (review) => review.commentRef === commentId
+        (review) => review._id.toString() === commentId
       );
       if (!comment) {
         return res.status(404).json({ error: "Comment not found" });
@@ -221,7 +221,7 @@ const restaurantController = {
       }
 
       const comment = restaurant.reviews.find(
-        (review) => review.commentRef === commentId
+        (review) => review._id.toString() === commentId
       );
       if (!comment) {
         return res.status(404).json({ error: "Comment not found" });
