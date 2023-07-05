@@ -62,7 +62,7 @@ const ordersController = {
       if (validBodyClient.error) {
         return res.status(400).json(validBodyClient.error.details);
       }
-      console.log(orderBody);
+      console.log(orderBody.products);
 
       if (!user.cart) {
         return res.status(404).json({ error: "Cart data not found" });

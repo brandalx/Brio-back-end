@@ -61,8 +61,12 @@ const usersController = {
         console.log(item.productId);
         let product = await productsModel.findById(item.productId);
         if (product) {
-          product.price = product.price * item.productAmount;
-
+          console.log("Product price:", product.price);
+          console.log("Product amount:", item.productAmount);
+          let prices = product.price * item.productAmount;
+          console.log("Total price:", prices);
+          product.price = prices;
+          console.log(product);
           products.push(product);
         } else {
           products.push(null);
@@ -563,6 +567,7 @@ const usersController = {
         .json({ err: "password not the same as confirmed password" });
     }
     let desfineType;
+    console.log(req.body.password);
     if (req.body.type === "personal") {
       desfineType = "USER";
     } else if (req.body.type === "restaurant") {
@@ -599,6 +604,8 @@ const usersController = {
       let user = new UserClientModel(userBody);
 
       user.password = await bcrypt.hash(user.password, 10);
+      console.log(req.body.password);
+      console.log(user.password);
       user = await user.save();
       user.password = usersController.randomStars();
       res.status(201).json(user);
@@ -681,15 +688,15 @@ const usersController = {
           .json({ err: "Email not found / user dont exist" });
       }
 
-      console.log(`Entered password: ${req.body.password}`);
-      console.log(`Hashed password in DB: ${user.password}`);
+      // console.log(`Entered password: ${req.body.password}`);
+      // console.log(`Hashed password in DB: ${user.password}`);
 
       let validPassword = await bcrypt.compare(
         req.body.password,
         user.password
       );
 
-      console.log(`Result of password comparison: ${validPassword}`);
+      // console.log(`Result of password comparison: ${validPassword}`);
 
       if (!validPassword) {
         return res
