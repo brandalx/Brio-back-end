@@ -27,8 +27,12 @@ const userClientSchema = new mongoose.Schema({
   },
   comments: [
     {
-      comment: String,
-      date: Date,
+      commentRef: String,
+      restaurantRef: String,
+      datecreated: {
+        type: Date,
+        default: Date.now,
+      },
     },
   ],
   rate: [
@@ -80,9 +84,6 @@ const userClientSchema = new mongoose.Schema({
   restaurant: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "restaurants",
-    required: function () {
-      return this.role === "ADMIN";
-    },
   },
   favorites: [
     {
@@ -97,26 +98,6 @@ const userClientSchema = new mongoose.Schema({
     default: Date.now,
   },
   notes: String,
-});
-
-userClientSchema.pre("save", function (next) {
-  let user = this;
-  if (this.isModified("password") || this.isNew) {
-    bcrypt.genSalt(10, function (err, salt) {
-      if (err) {
-        return next(err);
-      }
-      bcrypt.hash(user.password, salt, function (err, hash) {
-        if (err) {
-          return next(err);
-        }
-        user.password = hash;
-        next();
-      });
-    });
-  } else {
-    return next();
-  }
 });
 
 export const UserClientModel = mongoose.model("users", userClientSchema);

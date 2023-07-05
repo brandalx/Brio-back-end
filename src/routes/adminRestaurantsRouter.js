@@ -14,5 +14,14 @@ router.patch(
 router.get("/:id", adminRestaurantsController.updateRestaurantById);
 router.get("/:id/products", adminRestaurantsController.getRestaurantProducts);
 router.get("/:id/menu", adminRestaurantsController.adminGetRestaurantsMenu);
+router.put(
+  "/:id/badge/add",
+  authAdmin,
+  adminRestaurantsController.addBadgeToRestaurant
+);
 
+router.post(
+  "/createRestaurantAndAdmin",
+  adminRestaurantsController.createRestaurantAndAdmin
+);
 export default router;

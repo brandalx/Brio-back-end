@@ -1,12 +1,30 @@
 import mongoose from "mongoose";
 
+const tagSchema = new mongoose.Schema({
+  badgeTitle: String,
+  badgeEmoji: String,
+});
+
 const restaurantSchema = new mongoose.Schema({
   title: String,
   address: String,
   location: String,
   image: String,
-  reviews: Object,
-  tags: Object,
+  reviews: [
+    {
+      commentRef: String,
+      userRef: String,
+      rate: Number || null,
+      comment: String,
+      datecreated: {
+        type: Date,
+        default: Date.now,
+      },
+      likes: [String],
+      dislikes: [String],
+    },
+  ],
+  tags: [tagSchema],
   email: String,
   description: String,
   minprice: Number,
@@ -25,7 +43,12 @@ const restaurantSchema = new mongoose.Schema({
       },
     },
   ],
-
+  restaurantFilters: {
+    diningOptions: String,
+    priceRange: Number,
+    deliveryTime: Number,
+  },
+  ShippingAmount: Number,
   products: [{ type: mongoose.Schema.Types.ObjectId, ref: "products" }],
 });
 const Restaurants = mongoose.model("Restaurants", restaurantSchema);

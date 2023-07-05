@@ -17,6 +17,7 @@ import Restaurants from "../models/restaurants.js";
 import { UserClientModel } from "../models/userClient.js";
 import router from "./restaurants.js";
 import { authAdmin } from "../middlewares/auth.js";
+import bcrypt from "bcrypt";
 
 export const routesInit = (app) => {
   // User routes
@@ -34,32 +35,6 @@ export const routesInit = (app) => {
   app.use("/admin/products", adminProductsRouter);
   app.use("/admin/orders", adminOrdersRouter);
   app.use("/admin/promotions", adminPromotionsRouter);
-  app.post("/createRestaurantAndAdmin", async (req, res) => {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    try {
-      const restaurantData = req.body.restaurant;
-      const adminData = req.body.admin;
-
-      const restaurant = new Restaurants(restaurantData);
-      await restaurant.save({ session });
-
-      const admin = new UserClientModel(adminData);
-      admin.restaurant = restaurant;
-      await admin.save({ session });
-
-      await session.commitTransaction();
-      await session.endSession();
-
-      const updatedAdmin = await UserClientModel.findById(admin._id); // find the admin again to get the updated data
-      res.status(200).send({ restaurant, admin: updatedAdmin });
-    } catch (error) {
-      await session.abortTransaction();
-      await session.endSession();
-
-      res.status(500).send({ error: error.toString() });
-    }
-  });
   // Swagger API documentation
   app.use("/api-docs", swaggerUiMiddleware);
 
