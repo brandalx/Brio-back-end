@@ -61,8 +61,12 @@ const usersController = {
         console.log(item.productId);
         let product = await productsModel.findById(item.productId);
         if (product) {
-          product.price = product.price * item.productAmount;
-
+          console.log("Product price:", product.price);
+          console.log("Product amount:", item.productAmount);
+          let prices = product.price * item.productAmount;
+          console.log("Total price:", prices);
+          product.price = prices;
+          console.log(product);
           products.push(product);
         } else {
           products.push(null);
@@ -159,7 +163,9 @@ const usersController = {
   },
   async getUserCreditData(req, res) {
     let idParams = req.params.id;
-
+    if (idParams != req.tokenData._id) {
+      res.status(200).json({ error: "token id does not matches" });
+    }
     try {
       let user = await UserClientModel.findById(idParams);
       if (user) {
@@ -516,6 +522,10 @@ const usersController = {
         return res.status(400).json(validBody.error.details);
       }
 
+      if (req.body.productAmount <= 0) {
+        return res.status(400).json({ error: "amount is cannot be 0 or less" });
+      }
+
       // is if the same product id exists
       const existingProductIndex = user.cart.findIndex((cart) => {
         // finding product
@@ -557,6 +567,7 @@ const usersController = {
         .json({ err: "password not the same as confirmed password" });
     }
     let desfineType;
+    console.log(req.body.password);
     if (req.body.type === "personal") {
       desfineType = "USER";
     } else if (req.body.type === "restaurant") {
@@ -593,6 +604,8 @@ const usersController = {
       let user = new UserClientModel(userBody);
 
       user.password = await bcrypt.hash(user.password, 10);
+      console.log(req.body.password);
+      console.log(user.password);
       user = await user.save();
       user.password = usersController.randomStars();
       res.status(201).json(user);
@@ -615,6 +628,45 @@ const usersController = {
         //deletes password from resposnse
         { password: 0 }
       );
+      let excludedCardsArr = [];
+      user.creditdata.map((item) => {
+        let num = item.cardNumber.length - 4;
+        let star = "*".repeat(num) + item.cardNumber.slice(-4);
+
+        item.cardNumber = star;
+      });
+
+      res.json(user);
+    } catch (err) {
+      console.log(err);
+
+      return res.status(502).json({ err });
+    }
+  },
+
+  async getUserPublicInfo(req, res) {
+    const id = req.params.id;
+    try {
+      let user = await UserClientModel.findOne(
+        { _id: id },
+
+        {
+          password: 0,
+          cart: 0,
+          orders: 0,
+          birthdate: 0,
+          nickname: 0,
+          address: 0,
+          creditdata: 0,
+          role: 0,
+          favorites: 0,
+          phone: 0,
+          emailnotifications: 0,
+          date_created: 0,
+          notes: 0,
+        }
+      );
+
       res.json(user);
     } catch (err) {
       console.log(err);
@@ -636,15 +688,15 @@ const usersController = {
           .json({ err: "Email not found / user dont exist" });
       }
 
-      console.log(`Entered password: ${req.body.password}`);
-      console.log(`Hashed password in DB: ${user.password}`);
+      // console.log(`Entered password: ${req.body.password}`);
+      // console.log(`Hashed password in DB: ${user.password}`);
 
       let validPassword = await bcrypt.compare(
         req.body.password,
         user.password
       );
 
-      console.log(`Result of password comparison: ${validPassword}`);
+      // console.log(`Result of password comparison: ${validPassword}`);
 
       if (!validPassword) {
         return res

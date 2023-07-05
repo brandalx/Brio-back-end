@@ -1,5 +1,3 @@
-restaurantValidation;
-
 import Joi from "joi";
 
 // Joi validator for created schema
@@ -18,6 +16,25 @@ export function validateRestaurantClient(_reqBody) {
     company: Joi.string().min(1).max(150).required(),
     products: Joi.array().items(Joi.string()).unique(),
   });
+
+  return joiSchema.validate(_reqBody);
+}
+
+export function validateRestaurantComment(_reqBody) {
+  const joiSchema = Joi.object({
+    commentRef: Joi.string().min(3).max(150).required(),
+    rate: Joi.number().min(1).max(5).required(),
+    comment: Joi.string().min(0).max(450).allow(null, " "),
+  }).required();
+
+  return joiSchema.validate(_reqBody);
+}
+
+export function validateRestaurantLike(_reqBody) {
+  const joiSchema = Joi.object({
+    commentId: Joi.string().min(3).max(150).required(),
+    restaurantId: Joi.string().min(3).max(150).required(),
+  }).required();
 
   return joiSchema.validate(_reqBody);
 }
