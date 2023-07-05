@@ -100,26 +100,6 @@ const userClientSchema = new mongoose.Schema({
   notes: String,
 });
 
-userClientSchema.pre("save", function (next) {
-  let user = this;
-  if (this.isModified("password") || this.isNew) {
-    bcrypt.genSalt(10, function (err, salt) {
-      if (err) {
-        return next(err);
-      }
-      bcrypt.hash(user.password, salt, function (err, hash) {
-        if (err) {
-          return next(err);
-        }
-        user.password = hash;
-        next();
-      });
-    });
-  } else {
-    return next();
-  }
-});
-
 export const UserClientModel = mongoose.model("users", userClientSchema);
 
 //todo: correct model according on future requests (in future releases)

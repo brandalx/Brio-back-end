@@ -1,4 +1,7 @@
 import Restaurants from "../models/restaurants.js";
+import mongoose from "mongoose";
+import { UserClientModel } from "../models/userClient.js";
+import bcrypt from "bcrypt";
 
 const adminRestaurantsController = {
   async getRestaurantById(req, res) {
@@ -14,6 +17,42 @@ const adminRestaurantsController = {
       res.status(502).json({ err });
     }
   },
+  async createRestaurantAndAdmin(req, res) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      const restaurantData = req.body.restaurant;
+      const adminData = req.body.admin;
+
+      const restaurant = new Restaurants(restaurantData);
+      await restaurant.save({ session });
+
+      const admin = new UserClientModel(adminData);
+      admin.restaurant = restaurant;
+      admin.password = await bcrypt.hash(admin.password, 10);
+
+      await admin.save({ session });
+
+      const randomStars = () => {
+        let numOfStars = Math.floor(Math.random() * 4) + 6;
+        return "*".repeat(numOfStars);
+      };
+
+      admin.password = randomStars();
+
+      await session.commitTransaction();
+      await session.endSession();
+
+      const updatedAdmin = await UserClientModel.findById(admin._id); // find the admin again to get the updated data
+      res.status(200).send({ restaurant, admin: updatedAdmin });
+    } catch (error) {
+      await session.abortTransaction();
+      await session.endSession();
+
+      res.status(500).send({ error: error.toString() });
+    }
+  },
+
   async getAllRestaurants(req, res) {
     try {
       let data = await Restaurants.find({});

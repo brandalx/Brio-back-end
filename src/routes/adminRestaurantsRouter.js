@@ -19,4 +19,9 @@ router.put(
   authAdmin,
   adminRestaurantsController.addBadgeToRestaurant
 );
+
+router.post(
+  "/createRestaurantAndAdmin",
+  adminRestaurantsController.createRestaurantAndAdmin
+);
 export default router;
