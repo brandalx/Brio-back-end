@@ -1,5 +1,10 @@
 import mongoose from "mongoose";
 
+const tagSchema = new mongoose.Schema({
+  badgeTitle: String,
+  badgeEmoji: String,
+});
+
 const restaurantSchema = new mongoose.Schema({
   title: String,
   address: String,
@@ -19,12 +24,7 @@ const restaurantSchema = new mongoose.Schema({
       dislikes: [String],
     },
   ],
-  tags: Object,
-  restaurantFilters: {
-    diningOptions: String,
-    priceRange: Number,
-    deliveryTime: Number,
-  },
+  tags: [tagSchema],
   email: String,
   description: String,
   minprice: Number,
@@ -43,7 +43,12 @@ const restaurantSchema = new mongoose.Schema({
       },
     },
   ],
-
+  restaurantFilters: {
+    diningOptions: String,
+    priceRange: Number,
+    deliveryTime: Number,
+  },
+  ShippingAmount: Number,
   products: [{ type: mongoose.Schema.Types.ObjectId, ref: "products" }],
 });
 const Restaurants = mongoose.model("Restaurants", restaurantSchema);
