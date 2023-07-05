@@ -167,7 +167,6 @@ export function validateUserClientCardPut(_reqBody) {
     expirationDate: Joi.string().min(2).max(150).required(),
     cardholder: Joi.string().min(2).max(150).required(),
     securityCode: Joi.string().min(2).max(150).required(),
-    securityCode: Joi.string().min(2).max(150).required(),
     _id: Joi.string().min(2).max(150).required(),
   });
 
