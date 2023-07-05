@@ -29,5 +29,4 @@ router.put("/card/edit", auth, usersController.putUserCard);
 router.post("/user/avatar", auth, usersController.postUserAvatar);
 router.post("/:id/notes", authAdmin, usersController.postUserNotes);
 
-
 export default router;

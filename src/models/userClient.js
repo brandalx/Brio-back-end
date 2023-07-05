@@ -27,8 +27,12 @@ const userClientSchema = new mongoose.Schema({
   },
   comments: [
     {
-      comment: String,
-      date: Date,
+      commentRef: String,
+      restaurantRef: String,
+      datecreated: {
+        type: Date,
+        default: Date.now,
+      },
     },
   ],
   rate: [
@@ -80,9 +84,6 @@ const userClientSchema = new mongoose.Schema({
   restaurant: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "restaurants",
-    required: function () {
-      return this.role === "ADMIN";
-    },
   },
   favorites: [
     {

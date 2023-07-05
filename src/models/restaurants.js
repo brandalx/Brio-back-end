@@ -5,7 +5,20 @@ const restaurantSchema = new mongoose.Schema({
   address: String,
   location: String,
   image: String,
-  reviews: Object,
+  reviews: [
+    {
+      commentRef: String,
+      userRef: String,
+      rate: Number || null,
+      comment: String,
+      datecreated: {
+        type: Date,
+        default: Date.now,
+      },
+      likes: [String],
+      dislikes: [String],
+    },
+  ],
   tags: Object,
   email: String,
   description: String,
@@ -25,7 +38,12 @@ const restaurantSchema = new mongoose.Schema({
       },
     },
   ],
-
+  restaurantFilters: {
+    diningOptions: String,
+    priceRange: Number,
+    deliveryTime: Number,
+  },
+  ShippingAmount: Number,
   products: [{ type: mongoose.Schema.Types.ObjectId, ref: "products" }],
 });
 const Restaurants = mongoose.model("Restaurants", restaurantSchema);
