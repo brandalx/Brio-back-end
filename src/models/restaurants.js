@@ -1,5 +1,10 @@
 import mongoose from "mongoose";
 
+const tagSchema = new mongoose.Schema({
+  badgeTitle: String,
+  badgeEmoji: String,
+});
+
 const restaurantSchema = new mongoose.Schema({
   title: String,
   address: String,
@@ -19,7 +24,7 @@ const restaurantSchema = new mongoose.Schema({
       dislikes: [String],
     },
   ],
-  tags: Object,
+  tags: [tagSchema],
   email: String,
   description: String,
   minprice: Number,

@@ -72,6 +72,35 @@ const adminRestaurantsController = {
       res.status(502).json({ error: err });
     }
   },
+  async addBadgeToRestaurant(req, res) {
+    const { id } = req.params;
+    const { badgeTitle, badgeEmoji } = req.body;
+
+    if (!badgeTitle || !badgeEmoji) {
+      return res
+        .status(400)
+        .json({ error: "Badge title and emoji are required" });
+    }
+
+    try {
+      const restaurant = await Restaurants.findById(id);
+      if (restaurant) {
+        restaurant.tags.push({
+          badgeTitle: badgeTitle,
+          badgeEmoji: badgeEmoji,
+        });
+
+        const updatedRestaurant = await restaurant.save();
+
+        res.status(200).json(updatedRestaurant);
+      } else {
+        res.status(404).json({ error: "Restaurant not found" });
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: err });
+    }
+  },
 };
 
 export default adminRestaurantsController;
