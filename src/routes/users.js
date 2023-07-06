@@ -21,7 +21,7 @@ router.post("/login", usersController.postLogin);
 router.get("/info/user", auth, usersController.getUserInfo);
 router.get("/info/public/user/:id", usersController.getUserPublicInfo);
 router.put("/security", auth, usersController.putUserSecurity);
-
+router.delete("/cart/clear", auth, usersController.clearUserCart);
 router.delete("/address/delete", auth, usersController.deleteUserAddress);
 router.put("/address/edit", auth, usersController.putUserAddress);
 router.delete("/card/delete", auth, usersController.deleteUserCard);

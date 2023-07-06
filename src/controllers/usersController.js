@@ -867,6 +867,32 @@ const usersController = {
     }
   },
 
+  async clearUserCart(req, res) {
+    try {
+      const id = req.tokenData._id;
+      if (!id) {
+        return res.status(400).json({ error: "token id required" });
+      }
+
+      let user = await UserClientModel.findById(id);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      if (!user.cart) {
+        return res.status(404).json({ error: "Cart data not found" });
+      }
+
+      user.cart = [];
+
+      await user.save();
+      res.json({ msg: true });
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ err });
+    }
+  },
+
   async postNewAdmin(req, res) {
     const { adminData } = req.body;
 
