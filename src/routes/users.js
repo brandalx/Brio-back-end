@@ -29,5 +29,7 @@ router.delete("/cart/delete", auth, usersController.deleteItemCart);
 router.put("/card/edit", auth, usersController.putUserCard);
 router.post("/user/avatar", auth, usersController.postUserAvatar);
 router.post("/:id/notes", authAdmin, usersController.postUserNotes);
+router.post("/recoverrequest", usersController.handleUserRecoverRequest);
+router.post("/recoverrequestdata", usersController.handleUserSendRecoverChange);
 
 export default router;

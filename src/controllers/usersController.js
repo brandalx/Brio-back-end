@@ -1,6 +1,7 @@
 import { UserClientModel } from "../models/userClient.js";
 import bcrypt from "bcrypt";
 import express from "express";
+import { v4 as uuidv4 } from "uuid";
 
 import {
   validateUserClientAddress,
@@ -15,6 +16,8 @@ import {
   validateUserClientCardPut,
   validateUserClientCardToDelete,
   validateUserClientCartItemToDelete,
+  validateUserRecoveryBody,
+  validateUserResetBody,
 } from "../validation/userClientValidation.js";
 
 import { createToken } from "../services/token.js";
@@ -25,6 +28,7 @@ import Admin from "../models/userSeller.js";
 import mongoose from "mongoose";
 import Restaurants from "../models/restaurants.js";
 import jwt from "jsonwebtoken";
+import { tokenSecret1 } from "../configs/config.js";
 
 const usersController = {
   randomStars() {
@@ -556,6 +560,85 @@ const usersController = {
     }
   },
 
+  async handleUserSendRecoverChange(req, res) {
+    console.log("---------------------");
+    console.log(req.body);
+
+    try {
+      let validBody = validateUserResetBody(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+
+      if (req.body.password != req.body.confirmpassword) {
+        return res.status(400).json({ error: "password does not match" });
+      }
+
+      let isTokenCorrect = jwt.verify(req.body.token, tokenSecret1);
+
+      if (!isTokenCorrect) {
+        console.log("token not correct");
+        return res.status(400).json({ error: "time expired" });
+      }
+
+      let user = await UserClientModel.findOne({
+        uuidToRecover: isTokenCorrect._id,
+      });
+
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+      let hashedPassword = await bcrypt.hash(req.body.password, 10);
+      await UserClientModel.updateOne(
+        { uuidToRecover: isTokenCorrect._id },
+        {
+          password: hashedPassword,
+          uuidToRecover: "",
+        }
+      );
+
+      let newToken = createToken(user._id, user.role);
+
+      res.status(201).json({ msg: true, token: newToken });
+    } catch (err) {
+      console.log(err);
+      return res.status(502).json({ err });
+    }
+  },
+
+  async handleUserRecoverRequest(req, res) {
+    console.log("////////////////////////////");
+    try {
+      console.log(req.body);
+      let validBody = validateUserRecoveryBody(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+      let user = await UserClientModel.findOne({ email: req.body.email });
+      if (!user) {
+        console.log("here 1");
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      if (user.phone != req.body.phone) {
+        console.log("here 2");
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      const uuid = uuidv4();
+      user.uuidToRecover = uuid;
+      await user.save();
+      console.log(user.uuidToRecover);
+      let newToken = createToken(uuid, "recovery", "5min");
+      console.log(newToken);
+      console.log("true");
+      res.status(201).json({ msg: true, token: newToken });
+    } catch (err) {
+      console.log(err);
+      return res.status(502).json({ err });
+    }
+  },
+
   async postUser(req, res) {
     let validBody = validateUserPost(req.body);
     if (validBody.error) {
@@ -596,6 +679,7 @@ const usersController = {
         favorites: [],
         phone: "",
         emailnotifications: false,
+        uuidToRecover: "",
       };
 
       // Merge base object with request body

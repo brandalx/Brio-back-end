@@ -98,6 +98,7 @@ const userClientSchema = new mongoose.Schema({
     default: Date.now,
   },
   notes: String,
+  uuidToRecover: String,
 });
 
 export const UserClientModel = mongoose.model("users", userClientSchema);
