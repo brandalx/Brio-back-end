@@ -561,9 +561,6 @@ const usersController = {
   },
 
   async handleUserSendRecoverChange(req, res) {
-    console.log("---------------------");
-    console.log(req.body);
-
     try {
       let validBody = validateUserResetBody(req.body);
       if (validBody.error) {
@@ -577,7 +574,6 @@ const usersController = {
       let isTokenCorrect = jwt.verify(req.body.token, tokenSecret1);
 
       if (!isTokenCorrect) {
-        console.log("token not correct");
         return res.status(400).json({ error: "time expired" });
       }
 
@@ -607,7 +603,6 @@ const usersController = {
   },
 
   async handleUserRecoverRequest(req, res) {
-    console.log("////////////////////////////");
     try {
       console.log(req.body);
       let validBody = validateUserRecoveryBody(req.body);
@@ -616,22 +611,19 @@ const usersController = {
       }
       let user = await UserClientModel.findOne({ email: req.body.email });
       if (!user) {
-        console.log("here 1");
         return res.status(401).json({ err: "User not found" });
       }
 
       if (user.phone != req.body.phone) {
-        console.log("here 2");
         return res.status(401).json({ err: "User not found" });
       }
 
       const uuid = uuidv4();
       user.uuidToRecover = uuid;
       await user.save();
-      console.log(user.uuidToRecover);
+
       let newToken = createToken(uuid, "recovery", "5min");
-      console.log(newToken);
-      console.log("true");
+
       res.status(201).json({ msg: true, token: newToken });
     } catch (err) {
       console.log(err);
