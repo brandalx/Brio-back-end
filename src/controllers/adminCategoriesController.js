@@ -1,6 +1,7 @@
 import { categoriesModel } from "../models/categories.js";
 import Restaurants from "../models/restaurants.js";
 import { productsModel } from "../models/products.js";
+
 const adminCategoriesController = {
   async getAllCategories(req, res) {
     try {
@@ -32,7 +33,8 @@ const adminCategoriesController = {
     try {
       const newCategory = await categoriesModel.create({
         categoryName,
-        itemsId,
+        restaurantRef: restaurantId,
+        products: itemsId,
       });
 
       const restaurant = await Restaurants.findById(restaurantId);

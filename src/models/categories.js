@@ -1,10 +1,21 @@
 import mongoose from "mongoose";
 
-let schema = new mongoose.Schema({
-  categoryName: String,
-  restaurantId: String,
-  itemsId: Array,
+const categorySchema = new mongoose.Schema({
+  categoryName: {
+    type: String,
+    required: true,
+  },
+  restaurantRef: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Restaurants",
+    required: true,
+  },
+  products: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "products",
+    },
+  ],
 });
-export const categoriesModel = mongoose.model("categories", schema);
 
-//todo: correct model according on future requests (in future releases)
+export const categoriesModel = mongoose.model("categories", categorySchema);
