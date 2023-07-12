@@ -52,7 +52,15 @@ export function validateOrderStatus(order) {
       .min(1)
       .max(50)
       .required()
-      .allow("Cancelled", "Delivered"),
+      .allow(
+        "Cancelled",
+        "Delivered",
+        "Completed",
+        "In progress",
+        "Canceled",
+        "Suspended",
+        "Delivered"
+      ),
   });
 
   return schema.validate(order);
