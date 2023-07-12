@@ -1,4 +1,6 @@
 import express from "express";
+import { checkTokenId } from "../middlewares/checkTokenId.js";
+import { checkUserExists } from "../middlewares/checkUserExists.js";
 import usersController from "../controllers/usersController.js";
 import { auth, authAdmin } from "../middlewares/auth.js";
 // TO-DO: add auth middleware
@@ -8,7 +10,13 @@ const router = express.Router();
 router.get("/getAllUsers", usersController.getAllUsers);
 router.get("/:id", authAdmin, usersController.getUserById);
 router.get("/:id/cart", auth, usersController.getUserCart);
-router.get("/cart/presummary", auth, usersController.GetPreSummary);
+router.get(
+  "/cart/presummary",
+  auth,
+  checkTokenId,
+  checkUserExists,
+  usersController.GetPreSummary
+);
 router.get("/:id/address", auth, usersController.getUserAddress);
 router.get("/:id/credit-data", auth, usersController.getUserCreditData);
 router.get("/orders", auth, usersController.getUserOrders);

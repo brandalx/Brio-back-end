@@ -46,16 +46,7 @@ const usersController = {
 
   async GetPreSummary(req, res) {
     try {
-      const id = req.tokenData._id;
-      if (!id) {
-        return res.status(400).json({ error: "token id required" });
-      }
-
-      let user = await UserClientModel.findById(id);
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
+      let user = req.user;
       if (!user.cart) {
         return res.status(404).json({ error: "Cart data not found" });
       }
