@@ -56,8 +56,8 @@ const userOrderSchema = new mongoose.Schema({
     status: {
       type: String,
       required: true,
-      enum: ["Placed"],
     },
+
     paymentSummary: {
       type: paymentSummarySchema,
       required: true,

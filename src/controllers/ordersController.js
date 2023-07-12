@@ -3,6 +3,7 @@ import { productsModel } from "../models/products.js";
 import { UserClientModel } from "../models/userClient.js";
 import {
   validateOrder,
+  validateOrderStatus,
   validateUserOrder,
 } from "../validation/ordersValidation.js";
 const ordersController = {
@@ -127,6 +128,50 @@ const ordersController = {
     } catch (err) {
       console.log(err);
       return res.status(502).json({ err });
+    }
+  },
+
+  async changeStatus(req, res) {
+    const id = req.tokenData._id;
+    if (!id) {
+      res.status(200).json({ error: "token id required" });
+    }
+
+    try {
+      let user = await UserClientModel.findOne({ _id: id });
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      let validBody = validateOrderStatus(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+
+      let orderId = req.body.orderId;
+
+      let order = await ordersModel.findOne({ _id: orderId });
+      console.log(req.body.orderId);
+      console.log(order);
+      console.log(req.body.orderId);
+      console.log(req.body.orderstatus);
+
+      if (!order) {
+        return res.status(404).json("Cannot find order");
+      }
+
+      if (
+        order.userdata.status != "Cancelled" ||
+        order.userdata.status != "Delivered"
+      ) {
+        order.userdata.status = req.body.orderstatus;
+
+        await order.save();
+        res.status(200).json({ msg: true });
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ err });
     }
   },
 };
