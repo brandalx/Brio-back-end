@@ -41,5 +41,9 @@ router.post("/user/avatar", auth, usersController.postUserAvatar);
 router.post("/:id/notes", authAdmin, usersController.postUserNotes);
 router.post("/recoverrequest", usersController.handleUserRecoverRequest);
 router.post("/recoverrequestdata", usersController.handleUserSendRecoverChange);
+router.post(
+  "/recoverrequestcheck",
+  usersController.handleUserRecoverRequestCheck
+);
 
 export default router;

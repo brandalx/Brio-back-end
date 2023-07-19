@@ -18,6 +18,7 @@ import {
   validateUserClientCartItemToDelete,
   validateUserRecoveryBody,
   validateUserResetBody,
+  validateUserRecoveryBodyCheck,
 } from "../validation/userClientValidation.js";
 
 import { createToken } from "../services/token.js";
@@ -31,6 +32,12 @@ import jwt from "jsonwebtoken";
 import { tokenSecret1, tokenSendGrid } from "../configs/config.js";
 
 const usersController = {
+  generateSixDigitNumber() {
+    var min = 100000;
+    var max = 999999;
+    var randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+    return randomNumber;
+  },
   randomStars() {
     let numOfStars = Math.floor(Math.random() * 4) + 6;
     return "*".repeat(numOfStars);
@@ -552,48 +559,6 @@ const usersController = {
     }
   },
 
-  async handleUserSendRecoverChange(req, res) {
-    try {
-      let validBody = validateUserResetBody(req.body);
-      if (validBody.error) {
-        return res.status(400).json(validBody.error.details);
-      }
-
-      if (req.body.password != req.body.confirmpassword) {
-        return res.status(400).json({ error: "password does not match" });
-      }
-
-      let isTokenCorrect = jwt.verify(req.body.token, tokenSecret1);
-
-      if (!isTokenCorrect) {
-        return res.status(400).json({ error: "time expired" });
-      }
-
-      let user = await UserClientModel.findOne({
-        uuidToRecover: isTokenCorrect._id,
-      });
-
-      if (!user) {
-        return res.status(401).json({ err: "User not found" });
-      }
-      let hashedPassword = await bcrypt.hash(req.body.password, 10);
-      await UserClientModel.updateOne(
-        { uuidToRecover: isTokenCorrect._id },
-        {
-          password: hashedPassword,
-          uuidToRecover: "",
-        }
-      );
-
-      let newToken = createToken(user._id, user.role);
-
-      res.status(201).json({ msg: true, token: newToken });
-    } catch (err) {
-      console.log(err);
-      return res.status(502).json({ err });
-    }
-  },
-
   async handleUserRecoverRequest(req, res) {
     try {
       console.log(req.body);
@@ -605,16 +570,110 @@ const usersController = {
       if (!user) {
         return res.status(401).json({ err: "User not found" });
       }
+      let verificationCode = usersController.generateSixDigitNumber();
+      usersController.sendVerificationEmail(user.email, verificationCode);
 
-      if (user.phone != req.body.phone) {
+      const uuid = uuidv4();
+
+      user.uuidToRecover = uuid;
+      user.codeToRecover = verificationCode;
+
+      await user.save();
+
+      let newToken = createToken(uuid, "check", "5min");
+      res.status(201).json({ msg: true, token: newToken });
+    } catch (err) {
+      console.log(err);
+      return res.status(502).json({ err });
+    }
+  },
+
+  async handleUserRecoverRequestCheck(req, res) {
+    try {
+      console.log(req.body);
+      let validBody = validateUserRecoveryBodyCheck(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+
+      let isTokenCorrect = jwt.verify(req.body.token, tokenSecret1);
+
+      if (!isTokenCorrect) {
+        return res.status(400).json({ error: "time expired" });
+      }
+
+      let user = await UserClientModel.findOne({
+        uuidToRecover: isTokenCorrect._id,
+      });
+      if (!user) {
         return res.status(401).json({ err: "User not found" });
       }
 
-      const uuid = uuidv4();
-      user.uuidToRecover = uuid;
-      await user.save();
+      if (isTokenCorrect.role != "check") {
+        return res.status(401).json({ err: "Token error" });
+      }
+      let codeBody = req.body.code;
 
+      if (codeBody != user.codeToRecover) {
+        return res.status(401).json({ msg: false });
+      }
+      const uuid = uuidv4();
       let newToken = createToken(uuid, "recovery", "5min");
+      user.uuidToRecover = uuid;
+
+      res.status(201).json({ msg: true, token: newToken });
+
+      await user.save();
+    } catch (err) {
+      console.log(err);
+      return res.status(502).json({ err });
+    }
+  },
+
+  async handleUserSendRecoverChange(req, res) {
+    try {
+      let validBody = validateUserResetBody(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+
+      if (req.body.password != req.body.confirmpassword) {
+        return res.status(400).json({ error: "password does not match" });
+      }
+      let tokenBody = req.body.token;
+      let isTokenCorrect = jwt.verify(tokenBody, tokenSecret1);
+
+      if (!isTokenCorrect) {
+        return res.status(400).json({ error: "time expired" });
+      }
+
+      if (isTokenCorrect.role != "recovery") {
+        return res.status(401).json({ err: "Token error" });
+      }
+
+      let user = await UserClientModel.findOne({
+        uuidToRecover: isTokenCorrect._id,
+      });
+
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      if (req.body.code != user.codeToRecover) {
+        return res.status(401).json({ err: "Code not valid" });
+      }
+
+      let hashedPassword = await bcrypt.hash(req.body.password, 10);
+      await UserClientModel.updateOne(
+        { uuidToRecover: isTokenCorrect._id },
+        {
+          password: hashedPassword,
+          uuidToRecover: "",
+          code: "",
+        }
+      );
+
+      let newToken = createToken(user._id, user.role);
 
       res.status(201).json({ msg: true, token: newToken });
     } catch (err) {

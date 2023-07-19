@@ -99,6 +99,7 @@ const userClientSchema = new mongoose.Schema({
   },
   notes: String,
   uuidToRecover: String,
+  codeToRecover: String,
 });
 
 export const UserClientModel = mongoose.model("users", userClientSchema);

@@ -242,7 +242,14 @@ export function validateUserClientCartItemToDelete(_reqBody) {
 export function validateUserRecoveryBody(_reqBody) {
   const joiSchema = Joi.object({
     email: Joi.string().min(6).max(150).required(),
-    phone: Joi.string().min(6).max(14).required(),
+  });
+
+  return joiSchema.validate(_reqBody);
+}
+export function validateUserRecoveryBodyCheck(_reqBody) {
+  const joiSchema = Joi.object({
+    token: Joi.string().min(6).max(500).required(),
+    code: Joi.string().min(6).max(6).required(),
   });
 
   return joiSchema.validate(_reqBody);
@@ -251,6 +258,7 @@ export function validateUserRecoveryBody(_reqBody) {
 export function validateUserResetBody(_reqBody) {
   const joiSchema = Joi.object({
     token: Joi.string().min(6).max(500).required(),
+    code: Joi.string().min(6).max(500).required(),
     password: Joi.string().min(6).max(150).required(),
     confirmpassword: Joi.string().min(6).max(150).required(),
   });
