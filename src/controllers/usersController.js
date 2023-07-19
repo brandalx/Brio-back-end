@@ -2,7 +2,7 @@ import { UserClientModel } from "../models/userClient.js";
 import bcrypt from "bcrypt";
 import express from "express";
 import { v4 as uuidv4 } from "uuid";
-
+import sgMail from "@sendgrid/mail";
 import {
   validateUserClientAddress,
   validateUserClientCard,
@@ -28,7 +28,7 @@ import Admin from "../models/userSeller.js";
 import mongoose from "mongoose";
 import Restaurants from "../models/restaurants.js";
 import jwt from "jsonwebtoken";
-import { tokenSecret1 } from "../configs/config.js";
+import { tokenSecret1, tokenSendGrid } from "../configs/config.js";
 
 const usersController = {
   randomStars() {
@@ -1013,6 +1013,31 @@ const usersController = {
       }
       console.log(err);
       return res.status(502).json({ err });
+    }
+  },
+
+  async sendVerificationEmail(email, verificationCode) {
+    sgMail.setApiKey(tokenSendGrid);
+
+    verificationCode = "11111";
+    email = "brndalx2@gmail.com";
+    const msg = {
+      to: email, // Recipient's email
+      from: "briofooddelivery@gmail.com", // Your verified sender address
+      subject: "Email Verification",
+      text: `Your verification code is: ${verificationCode}`,
+      html: `<strong>Your verification code is: ${verificationCode}</strong>`,
+    };
+
+    // Send the email
+    try {
+      await sgMail.send(msg);
+      console.log("Email sent");
+    } catch (error) {
+      console.error(error);
+      if (error.response) {
+        console.error(error.response.body);
+      }
     }
   },
 };

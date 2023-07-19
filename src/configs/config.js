@@ -6,3 +6,4 @@ export const localurldb = process.env.LOCALURLDB;
 export const port = Number(process.env.PORT) || 3001;
 export const tokenSecret1 = process.env.TOKENSECRET1;
 export const tokenSecret2 = process.env.TOKENSECRET1;
+export const tokenSendGrid = process.env.TOKENSENDGRID;

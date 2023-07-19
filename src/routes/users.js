@@ -7,6 +7,8 @@ import { auth, authAdmin } from "../middlewares/auth.js";
 const router = express.Router();
 // For each route there is a call to the controller that implements the required logic
 // router.get("/", usersController.getUsers);
+router.get("/testsend", usersController.sendVerificationEmail);
+
 router.get("/getAllUsers", usersController.getAllUsers);
 router.get("/:id", authAdmin, usersController.getUserById);
 router.get("/:id/cart", auth, usersController.getUserCart);
