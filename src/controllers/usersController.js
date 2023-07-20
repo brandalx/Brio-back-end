@@ -580,7 +580,7 @@ const usersController = {
 
       await user.save();
 
-      let newToken = createToken(uuid, "check", "5min");
+      let newToken = createToken(uuid, "check", "1min");
       res.status(201).json({ msg: true, token: newToken });
     } catch (err) {
       console.log(err);
@@ -598,15 +598,22 @@ const usersController = {
 
       let isTokenCorrect = jwt.verify(req.body.token, tokenSecret1);
 
-      if (!isTokenCorrect) {
-        return res.status(400).json({ error: "time expired" });
-      }
-
       let user = await UserClientModel.findOne({
         uuidToRecover: isTokenCorrect._id,
       });
       if (!user) {
         return res.status(401).json({ err: "User not found" });
+      }
+
+      if (!isTokenCorrect) {
+        await UserClientModel.updateOne(
+          { uuidToRecover: isTokenCorrect._id },
+          {
+            uuidToRecover: "",
+            codeToRecover: "",
+          }
+        );
+        return res.status(400).json({ error: "time expired" });
       }
 
       if (isTokenCorrect.role != "check") {
@@ -618,7 +625,7 @@ const usersController = {
         return res.status(401).json({ msg: false });
       }
       const uuid = uuidv4();
-      let newToken = createToken(uuid, "recovery", "5min");
+      let newToken = createToken(uuid, "recovery", "1min");
       user.uuidToRecover = uuid;
 
       res.status(201).json({ msg: true, token: newToken });
@@ -643,10 +650,6 @@ const usersController = {
       let tokenBody = req.body.token;
       let isTokenCorrect = jwt.verify(tokenBody, tokenSecret1);
 
-      if (!isTokenCorrect) {
-        return res.status(400).json({ error: "time expired" });
-      }
-
       if (isTokenCorrect.role != "recovery") {
         return res.status(401).json({ err: "Token error" });
       }
@@ -659,6 +662,17 @@ const usersController = {
         return res.status(401).json({ err: "User not found" });
       }
 
+      if (!isTokenCorrect) {
+        await UserClientModel.updateOne(
+          { uuidToRecover: isTokenCorrect._id },
+          {
+            uuidToRecover: "",
+            codeToRecover: "",
+          }
+        );
+        return res.status(400).json({ error: "time expired" });
+      }
+
       if (req.body.code != user.codeToRecover) {
         return res.status(401).json({ err: "Code not valid" });
       }
@@ -669,7 +683,7 @@ const usersController = {
         {
           password: hashedPassword,
           uuidToRecover: "",
-          code: "",
+          codeToRecover: "",
         }
       );
 
