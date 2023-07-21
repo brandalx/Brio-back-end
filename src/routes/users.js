@@ -38,6 +38,8 @@ router.delete("/card/delete", auth, usersController.deleteUserCard);
 router.delete("/cart/delete", auth, usersController.deleteItemCart);
 router.put("/card/edit", auth, usersController.putUserCard);
 router.post("/user/avatar", auth, usersController.postUserAvatar);
+router.delete("/user/avatar/remove", auth, usersController.removeUserAvatar);
+
 router.post("/:id/notes", authAdmin, usersController.postUserNotes);
 router.post("/recoverrequest", usersController.handleUserRecoverRequest);
 router.post("/recoverrequestdata", usersController.handleUserSendRecoverChange);

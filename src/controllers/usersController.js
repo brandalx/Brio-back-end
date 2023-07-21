@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import express from "express";
 import { v4 as uuidv4 } from "uuid";
 import sgMail from "@sendgrid/mail";
+
 import {
   validateUserClientAddress,
   validateUserClientCard,
@@ -30,6 +31,7 @@ import mongoose from "mongoose";
 import Restaurants from "../models/restaurants.js";
 import jwt from "jsonwebtoken";
 import { tokenSecret1, tokenSendGrid } from "../configs/config.js";
+import promotionsModel from "../models/promotions.js";
 
 const usersController = {
   generateSixDigitNumber() {
@@ -59,10 +61,46 @@ const usersController = {
       }
 
       let products = [];
+      let promotions = await promotionsModel.find({});
+
+      let tempArr = [];
+      // let tempArr2 = [];
+      let days = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
+      let dayName = days[new Date().getDay()];
+
+      promotions.forEach((item) => {
+        let startDate = new Date(item.startDate); // parse startDate into a Date object
+        let endDate = new Date(item.endDate); // parse endDate into a Date object
+        if (item.discountDays.includes(dayName) && new Date() < endDate) {
+          tempArr.push(item);
+        }
+      });
+
       for (let item of user.cart) {
         console.log(item.productId);
         let product = await productsModel.findById(item.productId);
+
         if (product) {
+          console.log("tempArr is" + tempArr);
+
+          let promotion = tempArr.find((promo) =>
+            promo.discountProducts.includes(item.productId)
+          );
+
+          console.log("promotion is " + promotion);
+          if (promotion) {
+            let discountPercentage = promotion.discountPercent / 10;
+            console.log("promotion is " + discountPercentage);
+          }
+
           console.log("Product price:", product.price);
           console.log("Product amount:", item.productAmount);
           let prices = product.price * item.productAmount;
@@ -1005,6 +1043,53 @@ const usersController = {
     } catch (err) {
       console.log(err);
       res.status(502).json({ err });
+    }
+  },
+
+  async removeUserAvatar(req, res) {
+    const id = req.tokenData._id;
+
+    if (!id) {
+      return res.status(400).json({ error: "token id required" });
+    }
+
+    try {
+      const user = await UserClientModel.findOne({ _id: id });
+
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      const dirPath = path.join(
+        "public",
+        "images",
+        "users",
+        id.toString(),
+        "avatars"
+      );
+
+      // Check if directory exists
+      if (fs.existsSync(dirPath)) {
+        // Get all files in directory
+        const files = fs.readdirSync(dirPath);
+
+        // Loop over files and remove
+        for (const file of files) {
+          fs.unlinkSync(path.join(dirPath, file));
+        }
+
+        // Remove directory
+        fs.rmdirSync(dirPath);
+        user.avatar = "";
+        await user.save();
+
+        return res.status(200).json({ msg: "User avatar deleted" });
+      } else {
+        return res.status(404).json({ err: "Directory does not exist" });
+      }
+    } catch (err) {
+      console.log(err);
+      return res.status(502).json({ err });
     }
   },
 
