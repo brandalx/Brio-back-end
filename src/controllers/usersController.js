@@ -80,7 +80,9 @@ const usersController = {
         let startDate = new Date(item.startDate); // parse startDate into a Date object
         let endDate = new Date(item.endDate); // parse endDate into a Date object
         if (item.discountDays.includes(dayName) && new Date() < endDate) {
-          tempArr.push(item);
+          let cleanItem = item.toObject();
+          delete cleanItem.__v; // deletes the versionKey (__v) from the item, if not required
+          tempArr.push(cleanItem);
         }
       });
 
@@ -97,8 +99,13 @@ const usersController = {
 
           console.log("promotion is " + promotion);
           if (promotion) {
-            let discountPercentage = promotion.discountPercent / 10;
+            let discountPercentage = promotion.discountPercent;
+
+            let discountedPrice =
+              product.price * (1 - discountPercentage / 100);
+            product.price = discountedPrice;
             console.log("promotion is " + discountPercentage);
+            console.log("discounted price is " + discountedPrice);
           }
 
           console.log("Product price:", product.price);
