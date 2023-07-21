@@ -40,11 +40,9 @@ const usersController = {
     }
   },
 
-  async postAddAdmin(req, res) {
-    const id = req.params.id;
-
+  async postAddAdminByEmail(req, res) {
     try {
-      let user = await UserClientModel.findOne({ _id: id });
+      let user = await UserClientModel.findOne({ email: req.body.email });
       if (!user) {
         return res.status(404).json({ err: "User not found" });
       }
