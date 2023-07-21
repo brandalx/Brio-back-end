@@ -11,12 +11,16 @@ const promotionsController = {
     }
   },
   async createPromotion(req, res) {
+    console.log("Received:", req.body); // log received data here
     const {
       discountDetails,
       startDate,
       endDate,
-      restaurantName,
       image,
+      discountPercent,
+      discountProducts,
+      restaurantName,
+      restaurantRef,
       discountDays,
     } = req.body;
 
@@ -25,8 +29,11 @@ const promotionsController = {
         discountDetails,
         startDate,
         endDate,
-        restaurantName,
         image,
+        discountPercent,
+        discountProducts,
+        restaurantName,
+        restaurantRef,
         discountDays,
       });
       res.json(newPromotion);
