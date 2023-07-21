@@ -1,5 +1,6 @@
 import { ordersModel } from "../models/orders.js";
 import { productsModel } from "../models/products.js";
+import promotionsModel from "../models/promotions.js";
 import { UserClientModel } from "../models/userClient.js";
 import {
   validateOrder,
@@ -70,10 +71,49 @@ const ordersController = {
       }
       //validating order summary (in case if user will modify it in client)
       let productsArr = [];
+      let promotions = await promotionsModel.find({});
+
+      let tempArr = [];
+      // let tempArr2 = [];
+      let days = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
+      let dayName = days[new Date().getDay()];
+
+      promotions.forEach((item) => {
+        let startDate = new Date(item.startDate); // parse startDate into a Date object
+        let endDate = new Date(item.endDate); // parse endDate into a Date object
+        if (item.discountDays.includes(dayName) && new Date() < endDate) {
+          let cleanItem = item.toObject();
+          delete cleanItem.__v; // deletes the versionKey (__v) from the item, if not required
+          tempArr.push(cleanItem);
+        }
+      });
       for (let item of user.cart) {
         console.log(item.productId);
         let product = await productsModel.findById(item.productId);
         if (product) {
+          let promotion = tempArr.find((promo) =>
+            promo.discountProducts.includes(item.productId)
+          );
+
+          console.log("promotion is " + promotion);
+          if (promotion) {
+            let discountPercentage = promotion.discountPercent;
+
+            let discountedPrice =
+              product.price * (1 - discountPercentage / 100);
+            product.price = discountedPrice;
+            console.log("promotion is " + discountPercentage);
+            console.log("discounted price is " + discountedPrice);
+          }
+
           product.price = product.price * item.productAmount;
           orderBody.ordersdata.products.map((item2, index) => {
             if (item2.productId === item.productId) {
