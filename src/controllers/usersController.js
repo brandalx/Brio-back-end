@@ -1,6 +1,8 @@
 import { UserClientModel } from "../models/userClient.js";
 import bcrypt from "bcrypt";
 import express from "express";
+import { v4 as uuidv4 } from "uuid";
+import sgMail from "@sendgrid/mail";
 
 import {
   validateUserClientAddress,
@@ -15,6 +17,9 @@ import {
   validateUserClientCardPut,
   validateUserClientCardToDelete,
   validateUserClientCartItemToDelete,
+  validateUserRecoveryBody,
+  validateUserResetBody,
+  validateUserRecoveryBodyCheck,
 } from "../validation/userClientValidation.js";
 
 import { createToken } from "../services/token.js";
@@ -25,8 +30,16 @@ import Admin from "../models/userSeller.js";
 import mongoose from "mongoose";
 import Restaurants from "../models/restaurants.js";
 import jwt from "jsonwebtoken";
+import { tokenSecret1, tokenSendGrid } from "../configs/config.js";
+import promotionsModel from "../models/promotions.js";
 
 const usersController = {
+  generateSixDigitNumber() {
+    var min = 100000;
+    var max = 999999;
+    var randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+    return randomNumber;
+  },
   randomStars() {
     let numOfStars = Math.floor(Math.random() * 4) + 6;
     return "*".repeat(numOfStars);
@@ -89,25 +102,59 @@ const usersController = {
 
   async GetPreSummary(req, res) {
     try {
-      const id = req.tokenData._id;
-      if (!id) {
-        return res.status(400).json({ error: "token id required" });
-      }
-
-      let user = await UserClientModel.findById(id);
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
+      let user = req.user;
       if (!user.cart) {
         return res.status(404).json({ error: "Cart data not found" });
       }
 
       let products = [];
+      let promotions = await promotionsModel.find({});
+
+      let tempArr = [];
+      // let tempArr2 = [];
+      let days = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
+      let dayName = days[new Date().getDay()];
+
+      promotions.forEach((item) => {
+        let startDate = new Date(item.startDate); // parse startDate into a Date object
+        let endDate = new Date(item.endDate); // parse endDate into a Date object
+        if (item.discountDays.includes(dayName) && new Date() < endDate) {
+          let cleanItem = item.toObject();
+          delete cleanItem.__v; // deletes the versionKey (__v) from the item, if not required
+          tempArr.push(cleanItem);
+        }
+      });
+
       for (let item of user.cart) {
         console.log(item.productId);
         let product = await productsModel.findById(item.productId);
+
         if (product) {
+          console.log("tempArr is" + tempArr);
+
+          let promotion = tempArr.find((promo) =>
+            promo.discountProducts.includes(item.productId)
+          );
+
+          console.log("promotion is " + promotion);
+          if (promotion) {
+            let discountPercentage = promotion.discountPercent;
+
+            let discountedPrice =
+              product.price * (1 - discountPercentage / 100);
+            product.price = discountedPrice;
+            console.log("promotion is " + discountPercentage);
+            console.log("discounted price is " + discountedPrice);
+          }
+
           console.log("Product price:", product.price);
           console.log("Product amount:", item.productAmount);
           let prices = product.price * item.productAmount;
@@ -138,6 +185,7 @@ const usersController = {
   async getAllUsers(req, res) {
     try {
       let data = await UserClientModel.find({});
+
       res.json(data);
     } catch (err) {
       console.log(err);
@@ -603,6 +651,143 @@ const usersController = {
     }
   },
 
+  async handleUserRecoverRequest(req, res) {
+    try {
+      console.log(req.body);
+      let validBody = validateUserRecoveryBody(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+      let user = await UserClientModel.findOne({ email: req.body.email });
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+      let verificationCode = usersController.generateSixDigitNumber();
+      usersController.sendVerificationEmail(user.email, verificationCode);
+
+      const uuid = uuidv4();
+
+      user.uuidToRecover = uuid;
+      user.codeToRecover = verificationCode;
+
+      await user.save();
+
+      let newToken = createToken(uuid, "check", "1min");
+      res.status(201).json({ msg: true, token: newToken });
+    } catch (err) {
+      console.log(err);
+      return res.status(502).json({ err });
+    }
+  },
+
+  async handleUserRecoverRequestCheck(req, res) {
+    try {
+      console.log(req.body);
+      let validBody = validateUserRecoveryBodyCheck(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+
+      let isTokenCorrect = jwt.verify(req.body.token, tokenSecret1);
+
+      let user = await UserClientModel.findOne({
+        uuidToRecover: isTokenCorrect._id,
+      });
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      if (!isTokenCorrect) {
+        await UserClientModel.updateOne(
+          { uuidToRecover: isTokenCorrect._id },
+          {
+            uuidToRecover: "",
+            codeToRecover: "",
+          }
+        );
+        return res.status(400).json({ error: "time expired" });
+      }
+
+      if (isTokenCorrect.role != "check") {
+        return res.status(401).json({ err: "Token error" });
+      }
+      let codeBody = req.body.code;
+
+      if (codeBody != user.codeToRecover) {
+        return res.status(401).json({ msg: false });
+      }
+      const uuid = uuidv4();
+      let newToken = createToken(uuid, "recovery", "1min");
+      user.uuidToRecover = uuid;
+
+      res.status(201).json({ msg: true, token: newToken });
+
+      await user.save();
+    } catch (err) {
+      console.log(err);
+      return res.status(502).json({ err });
+    }
+  },
+
+  async handleUserSendRecoverChange(req, res) {
+    try {
+      let validBody = validateUserResetBody(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+
+      if (req.body.password != req.body.confirmpassword) {
+        return res.status(400).json({ error: "password does not match" });
+      }
+      let tokenBody = req.body.token;
+      let isTokenCorrect = jwt.verify(tokenBody, tokenSecret1);
+
+      if (isTokenCorrect.role != "recovery") {
+        return res.status(401).json({ err: "Token error" });
+      }
+
+      let user = await UserClientModel.findOne({
+        uuidToRecover: isTokenCorrect._id,
+      });
+
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      if (!isTokenCorrect) {
+        await UserClientModel.updateOne(
+          { uuidToRecover: isTokenCorrect._id },
+          {
+            uuidToRecover: "",
+            codeToRecover: "",
+          }
+        );
+        return res.status(400).json({ error: "time expired" });
+      }
+
+      if (req.body.code != user.codeToRecover) {
+        return res.status(401).json({ err: "Code not valid" });
+      }
+
+      let hashedPassword = await bcrypt.hash(req.body.password, 10);
+      await UserClientModel.updateOne(
+        { uuidToRecover: isTokenCorrect._id },
+        {
+          password: hashedPassword,
+          uuidToRecover: "",
+          codeToRecover: "",
+        }
+      );
+
+      let newToken = createToken(user._id, user.role);
+
+      res.status(201).json({ msg: true, token: newToken });
+    } catch (err) {
+      console.log(err);
+      return res.status(502).json({ err });
+    }
+  },
+
   async postUser(req, res) {
     let validBody = validateUserPost(req.body);
     if (validBody.error) {
@@ -643,6 +828,7 @@ const usersController = {
         favorites: [],
         phone: "",
         emailnotifications: false,
+        uuidToRecover: "",
       };
 
       // Merge base object with request body
@@ -914,6 +1100,79 @@ const usersController = {
     }
   },
 
+  async removeUserAvatar(req, res) {
+    const id = req.tokenData._id;
+
+    if (!id) {
+      return res.status(400).json({ error: "token id required" });
+    }
+
+    try {
+      const user = await UserClientModel.findOne({ _id: id });
+
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      const dirPath = path.join(
+        "public",
+        "images",
+        "users",
+        id.toString(),
+        "avatars"
+      );
+
+      // Check if directory exists
+      if (fs.existsSync(dirPath)) {
+        // Get all files in directory
+        const files = fs.readdirSync(dirPath);
+
+        // Loop over files and remove
+        for (const file of files) {
+          fs.unlinkSync(path.join(dirPath, file));
+        }
+
+        // Remove directory
+        fs.rmdirSync(dirPath);
+        user.avatar = "";
+        await user.save();
+
+        return res.status(200).json({ msg: "User avatar deleted" });
+      } else {
+        return res.status(404).json({ err: "Directory does not exist" });
+      }
+    } catch (err) {
+      console.log(err);
+      return res.status(502).json({ err });
+    }
+  },
+
+  async clearUserCart(req, res) {
+    try {
+      const id = req.tokenData._id;
+      if (!id) {
+        return res.status(400).json({ error: "token id required" });
+      }
+
+      let user = await UserClientModel.findById(id);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      if (!user.cart) {
+        return res.status(404).json({ error: "Cart data not found" });
+      }
+
+      user.cart = [];
+
+      await user.save();
+      res.json({ msg: true });
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ err });
+    }
+  },
+
   async postNewAdmin(req, res) {
     const { adminData } = req.body;
 
@@ -967,6 +1226,265 @@ const usersController = {
       }
       console.log(err);
       return res.status(502).json({ err });
+    }
+  },
+
+  async sendVerificationEmail(email, verificationCode) {
+    sgMail.setApiKey(tokenSendGrid);
+
+    const msg = {
+      to: email,
+      from: "briofooddelivery@gmail.com",
+      subject: "Email Verification",
+      text: `Your verification code is: ${verificationCode}`,
+      html: ` 
+      
+      
+      
+      <html data-editor-version="2" class="sg-campaigns" xmlns="http://www.w3.org/1999/xhtml"><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+      <!--[if !mso]><!-->
+      <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+      <!--<![endif]-->
+      <!--[if (gte mso 9)|(IE)]>
+      <xml>
+        <o:OfficeDocumentSettings>
+          <o:AllowPNG/>
+          <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+      </xml>
+      <![endif]-->
+      <!--[if (gte mso 9)|(IE)]>
+  <style type="text/css">
+    body {width: 700px;margin: 0 auto;}
+    table {border-collapse: collapse;}
+    table, td {mso-table-lspace: 0pt;mso-table-rspace: 0pt;}
+    img {-ms-interpolation-mode: bicubic;}
+  </style>
+<![endif]-->
+      <style type="text/css">
+    body, p, div {
+      font-family: arial,helvetica,sans-serif;
+      font-size: 14px;
+    }
+    body {
+      color: #000000;
+    }
+    body a {
+      color: #1188E6;
+      text-decoration: none;
+    }
+    p { margin: 0; padding: 0; }
+    table.wrapper {
+      width:100% !important;
+      table-layout: fixed;
+      -webkit-font-smoothing: antialiased;
+      -webkit-text-size-adjust: 100%;
+      -moz-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    img.max-width {
+      max-width: 100% !important;
+    }
+    .column.of-2 {
+      width: 50%;
+    }
+    .column.of-3 {
+      width: 33.333%;
+    }
+    .column.of-4 {
+      width: 25%;
+    }
+    ul ul ul ul  {
+      list-style-type: disc !important;
+    }
+    ol ol {
+      list-style-type: lower-roman !important;
+    }
+    ol ol ol {
+      list-style-type: lower-latin !important;
+    }
+    ol ol ol ol {
+      list-style-type: decimal !important;
+    }
+    @media screen and (max-width:480px) {
+      .preheader .rightColumnContent,
+      .footer .rightColumnContent {
+        text-align: left !important;
+      }
+      .preheader .rightColumnContent div,
+      .preheader .rightColumnContent span,
+      .footer .rightColumnContent div,
+      .footer .rightColumnContent span {
+        text-align: left !important;
+      }
+      .preheader .rightColumnContent,
+      .preheader .leftColumnContent {
+        font-size: 80% !important;
+        padding: 5px 0;
+      }
+      table.wrapper-mobile {
+        width: 100% !important;
+        table-layout: fixed;
+      }
+      img.max-width {
+        height: auto !important;
+        max-width: 100% !important;
+      }
+      a.bulletproof-button {
+        display: block !important;
+        width: auto !important;
+        font-size: 80%;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+      .columns {
+        width: 100% !important;
+      }
+      .column {
+        display: block !important;
+        width: 100% !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+      }
+      .social-icon-column {
+        display: inline-block !important;
+      }
+    }
+  </style>
+      <!--user entered Head Start--><!--End Head user entered-->
+    </head>
+    <body>
+      <center class="wrapper" data-link-color="#1188E6" data-body-style="font-size:14px; font-family:arial,helvetica,sans-serif; color:#000000; background-color:#5349ff;">
+        <div class="webkit">
+          <table cellpadding="0" cellspacing="0" border="0" width="100%" class="wrapper" bgcolor="#5349ff">
+            <tbody><tr>
+              <td valign="top" bgcolor="#5349ff" width="100%">
+                <table width="100%" role="content-container" class="outer" align="center" cellpadding="0" cellspacing="0" border="0">
+                  <tbody><tr>
+                    <td width="100%">
+                      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tbody><tr>
+                          <td>
+                            <!--[if mso]>
+    <center>
+    <table><tr><td width="700">
+  <![endif]-->
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%; max-width:700px;" align="center">
+                                      <tbody><tr>
+                                        <td role="modules-container" style="padding:0px 0px 0px 0px; color:#000000; text-align:left;" bgcolor="#F3F6FF" width="100%" align="left"><table class="module preheader preheader-hide" role="module" data-type="preheader" border="0" cellpadding="0" cellspacing="0" width="100%" style="display: none !important; mso-hide: all; visibility: hidden; opacity: 0; color: transparent; height: 0; width: 0;">
+    <tbody><tr>
+      <td role="module-content">
+        <p>Follow this step to recover your account</p>
+      </td>
+    </tr>
+  </tbody></table><table class="module" role="module" data-type="text" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;" data-muid="17761d99-860c-4f1f-aeb0-be55796d7adf" data-mc-module-version="2019-10-22">
+    <tbody>
+      <tr>
+        <td style="padding:15px 60px 10px 60px; line-height:12px; text-align:inherit; background-color:#4967ff;" height="100%" valign="top" bgcolor="#4967ff" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="font-family: &quot;lucida sans unicode&quot;, &quot;lucida grande&quot;, sans-serif; color: #f3f6ff; font-size: 10px">Email not displaying correctly? </span><span style="font-family: &quot;lucida sans unicode&quot;, &quot;lucida grande&quot;, sans-serif; color: #1c2c7b; font-size: 10px"><u>View it</u></span><span style="font-family: &quot;lucida sans unicode&quot;, &quot;lucida grande&quot;, sans-serif; color: #f3f6ff; font-size: 10px"> in your browser.</span></div><div></div></div></td>
+      </tr>
+    </tbody>
+  </table><table border="0" cellpadding="0" cellspacing="0" align="center" width="100%" role="module" data-type="columns" style="padding:30px 30px 20px 30px;" bgcolor="#ffffff" data-distribution="1">
+    <tbody>
+      <tr role="module-content">
+        <td height="100%" valign="top"><table width="280" style="width:280px; border-spacing:0; border-collapse:collapse; margin:0px 180px 0px 180px;" cellpadding="0" cellspacing="0" align="left" border="0" bgcolor="" class="column column-0">
+      <tbody>
+        <tr>
+          <td style="padding:0px;margin:0px;border-spacing:0;"><table class="wrapper" role="module" data-type="image" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;" data-muid="8710905a-e942-4b46-a460-0799e4faf5c2">
+    <tbody>
+      <tr>
+        <td style="font-size:6px; line-height:10px; padding:0px 0px 0px 0px;" valign="top" align="center">
+          <img class="max-width" border="0" style="display:block; color:#000000; text-decoration:none; font-family:Helvetica, arial, sans-serif; font-size:16px; max-width:100% !important; width:100%; height:auto !important;" width="280" alt="" data-proportionally-constrained="true" data-responsive="true" src="http://cdn.mcauto-images-production.sendgrid.net/27548861a3bba7f7/61a4e97a-be71-46b4-8f5a-054a2a57179b/1052x439.png">
+        </td>
+      </tr>
+    </tbody>
+  </table></td>
+        </tr>
+      </tbody>
+    </table></td>
+      </tr>
+    </tbody>
+  </table><table class="wrapper" role="module" data-type="image" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;" data-muid="6e0d4f99-4ac1-47a7-8681-b39ea8ee64e3">
+    <tbody>
+      <tr>
+        <td style="font-size:6px; line-height:10px; padding:0px 0px 0px 0px;" valign="top" align="center">
+          <img class="max-width" border="0" style="display:block; color:#000000; text-decoration:none; font-family:Helvetica, arial, sans-serif; font-size:16px; max-width:100% !important; width:100%; height:auto !important;" width="700" alt="" data-proportionally-constrained="true" data-responsive="true" src="http://cdn.mcauto-images-production.sendgrid.net/27548861a3bba7f7/7a90bd88-1f04-448b-b2af-19f94a862f29/1920x1146.jpg">
+        </td>
+      </tr>
+    </tbody>
+  </table><table border="0" cellpadding="0" cellspacing="0" align="center" width="100%" role="module" data-type="columns" style="padding:0px 5px 15px 5px;" bgcolor="" data-distribution="1">
+    <tbody>
+      <tr role="module-content">
+        <td height="100%" valign="top"><table width="690" style="width:690px; border-spacing:0; border-collapse:collapse; margin:0px 0px 0px 0px;" cellpadding="0" cellspacing="0" align="left" border="0" bgcolor="" class="column column-0">
+      <tbody>
+        <tr>
+          <td style="padding:0px;margin:0px;border-spacing:0;"><table class="module" role="module" data-type="text" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;" data-muid="a5ee1b9d-aacf-476c-ad72-fa1f2d816f12" data-mc-module-version="2019-10-22">
+    <tbody>
+      <tr>
+        <td style="padding:30px 0px 0px 0px; line-height:50px; text-align:inherit;" height="100%" valign="top" bgcolor="" role="module-content"><div><h1 style="text-align: center; font-family: inherit"><span style="font-family: &quot;lucida sans unicode&quot;, &quot;lucida grande&quot;, sans-serif; font-size: 60px; color: #4e60ff"><strong>Thank you!</strong></span></h1><div></div></div></td>
+      </tr>
+    </tbody>
+  </table><table class="module" role="module" data-type="text" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;" data-muid="a5ee1b9d-aacf-476c-ad72-fa1f2d816f12.2" data-mc-module-version="2019-10-22">
+    <tbody>
+      <tr>
+        <td style="padding:0px 0px 0px 0px; line-height:24px; text-align:inherit;" height="100%" valign="top" bgcolor="" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="font-family: &quot;lucida sans unicode&quot;, &quot;lucida grande&quot;, sans-serif; font-size: 20px; color: #000000">Please, follow those steps for recovering your password</span></div><div></div></div></td>
+      </tr>
+    </tbody>
+  </table><table class="module" role="module" data-type="text" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;" data-muid="a5ee1b9d-aacf-476c-ad72-fa1f2d816f12.2.1" data-mc-module-version="2019-10-22">
+    <tbody>
+      <tr>
+        <td style="padding:0px 0px 0px 0px; line-height:24px; text-align:inherit;" height="100%" valign="top" bgcolor="" role="module-content"><div><div style="font-family: inherit; text-align: center"><span style="font-family: &quot;lucida sans unicode&quot;, &quot;lucida grande&quot;, sans-serif; font-size: 20px; color: #000000"><strong>Your verification code is: <span style="text-decoration: underline" > ${verificationCode} </span></strong></span></div><div></div></div></td>
+      </tr>
+    </tbody>
+  </table></td>
+        </tr>
+      </tbody>
+    </table></td>
+      </tr>
+    </tbody>
+  </table><table class="module" role="module" data-type="spacer" border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed;" data-muid="9fad6950-fb2c-4904-8bf1-426398c84a27">
+    <tbody>
+      <tr>
+        <td style="padding:0px 0px 15px 0px;" role="module-content" bgcolor="">
+        </td>
+      </tr>
+    </tbody>
+  </table></td>
+                                      </tr>
+                                    </tbody></table>
+                                    <!--[if mso]>
+                                  </td>
+                                </tr>
+                              </table>
+                            </center>
+                            <![endif]-->
+                          </td>
+                        </tr>
+                      </tbody></table>
+                    </td>
+                  </tr>
+                </tbody></table>
+              </td>
+            </tr>
+          </tbody></table>
+        </div>
+      </center>
+    
+  </body></html>`,
+    };
+
+    // Send the email
+    try {
+      await sgMail.send(msg);
+      console.log("Email sent");
+    } catch (error) {
+      console.error(error);
+      if (error.response) {
+        console.error(error.response.body);
+      }
     }
   },
 };

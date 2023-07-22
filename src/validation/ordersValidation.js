@@ -44,3 +44,24 @@ export function validateUserOrder(order) {
 
   return schema.validate(order);
 }
+
+export function validateOrderStatus(order) {
+  const schema = Joi.object({
+    orderId: Joi.string().required(),
+    orderstatus: Joi.string()
+      .min(1)
+      .max(50)
+      .required()
+      .allow(
+        "Cancelled",
+        "Delivered",
+        "Completed",
+        "In progress",
+        "Canceled",
+        "Suspended",
+        "Delivered"
+      ),
+  });
+
+  return schema.validate(order);
+}

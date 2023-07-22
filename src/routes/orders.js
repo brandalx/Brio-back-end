@@ -6,5 +6,6 @@ router.get("/", auth, ordersController.getAllOrders);
 router.get("/:id", auth, ordersController.getOrdersById);
 router.get("/user/single", auth, ordersController.getUserOrders);
 router.post("/createorder", auth, ordersController.postOrder);
+router.put("/status/change", auth, ordersController.changeStatus);
 
 export default router;
