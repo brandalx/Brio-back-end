@@ -7,6 +7,12 @@ let schema = new mongoose.Schema({
   price: Number,
   ingredients: Array,
   nutritionals: Array,
+  categoryId: String,
+  promotionId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "promotions",
+    default: null,
+  },
   categoryName: String,
   restaurantRef: String,
 });

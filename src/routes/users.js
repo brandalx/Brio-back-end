@@ -29,5 +29,7 @@ router.delete("/cart/delete", auth, usersController.deleteItemCart);
 router.put("/card/edit", auth, usersController.putUserCard);
 router.post("/user/avatar", auth, usersController.postUserAvatar);
 router.post("/:id/notes", authAdmin, usersController.postUserNotes);
+router.post("/addAdminByEmail", authAdmin, usersController.postAddAdminByEmail);
+router.post("/verifyPassword", authAdmin, usersController.verifyPassword);
 
 export default router;

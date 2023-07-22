@@ -1,6 +1,7 @@
 import { Router } from "express";
 import restaurantController from "../controllers/restaurantsController.js";
 import { auth, authAdmin } from "../middlewares/auth.js";
+import usersController from "../controllers/usersController.js";
 
 const router = Router();
 router.get("/", restaurantController.getAllRestaurants);

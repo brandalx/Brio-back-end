@@ -40,6 +40,53 @@ const usersController = {
     }
   },
 
+  async postAddAdminByEmail(req, res) {
+    try {
+      let user = await UserClientModel.findOne({ email: req.body.email });
+      if (!user) {
+        return res.status(404).json({ err: "User not found" });
+      }
+
+      // Validate input
+      if (!req.body.restaurant) {
+        return res
+          .status(400)
+          .json({ err: "Missing restaurant ID in request body" });
+      }
+
+      // Check if the user is already an admin
+      if (user.role === "ADMIN") {
+        return res.status(409).json({ err: "User is already an admin" });
+      }
+
+      // Add restaurant and admin role to the user
+      user.role = "ADMIN";
+      user.restaurant = req.body.restaurant;
+      await user.save();
+
+      res.status(201).json({ msg: "Admin added successfully" });
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({ err });
+    }
+  },
+  async verifyPassword(req, res) {
+    const { password, hash } = req.body;
+
+    try {
+      const match = await bcrypt.compare(password, hash);
+
+      if (match) {
+        res.status(200).json({ match: true });
+      } else {
+        res.status(401).json({ match: false, message: "wrong password" });
+      }
+    } catch (error) {
+      console.error("Error verifying password:", error);
+      res.status(500).json({ error: "Error verifying password" });
+    }
+  },
+
   async GetPreSummary(req, res) {
     try {
       const id = req.tokenData._id;
