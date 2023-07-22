@@ -67,6 +67,7 @@ const adminProductsController = {
       ingredients,
       nutritionals,
       categoryName,
+      categoryId,
       restaurantRef,
     } = req.body;
 
@@ -78,6 +79,7 @@ const adminProductsController = {
         price,
         ingredients,
         nutritionals,
+        categoryId,
         categoryName,
         restaurantRef,
       });

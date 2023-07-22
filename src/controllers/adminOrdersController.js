@@ -15,9 +15,6 @@ const adminOrdersController = {
 
     try {
       const order = await ordersModel.findById(id).populate("_id");
-      if (!order) {
-        return res.status(404).json({ error: "Order not found" });
-      }
       res.json(order);
     } catch (err) {
       console.log(err);

@@ -4,8 +4,11 @@ const promotionSchema = new mongoose.Schema({
   discountDetails: String,
   startDate: String,
   endDate: String,
-  restaurantName: String,
   image: String,
+  discountPercent: Number,
+  discountProducts: Object,
+  restaurantName: String,
+  restaurantRef: String,
   discountDays: Array,
 });
 
