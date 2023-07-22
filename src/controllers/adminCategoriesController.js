@@ -143,11 +143,9 @@ const adminCategoriesController = {
         categoryName: categoryName,
       });
       if (existingCategory) {
-        return res
-          .status(400)
-          .json({
-            error: "Category with this name already exists in the restaurant",
-          });
+        return res.status(400).json({
+          error: "Category with this name already exists in the restaurant",
+        });
       }
 
       const newCategory = await categoriesModel.create({
