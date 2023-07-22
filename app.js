@@ -50,4 +50,4 @@ routesInit(app);
 // HTTP server initilization and listening for requests
 const server = http.createServer(app);
 
-app.listen(port);
+app.listen(port, "0.0.0.0");
