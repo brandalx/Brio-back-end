@@ -11,7 +11,7 @@ router.delete("/:id", adminCategoriesController.deleteCategory);
 router.post("/", authAdmin, adminCategoriesController.createCategory);
 router.get("/", adminCategoriesController.getCategoriesByRestaurant);
 router.patch(
-  "/admin/categories/:categoryId/add-product/:productId",
+  "/:categoryId/add-product/:productId",
   authAdmin,
   adminCategoriesController.addProductToCategory
 );
