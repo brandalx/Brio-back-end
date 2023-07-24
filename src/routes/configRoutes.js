@@ -21,22 +21,22 @@ import bcrypt from "bcrypt";
 
 export const routesInit = (app) => {
   // User routes
-  app.use("/", indexRouter);
-  app.use("/users", userRouter);
-  app.use("/getAllUsers", userRouter);
-  app.use("/categories", categoriesRouter);
-  app.use("/restaurants", restaurantsRouter);
-  app.use("/products", productsRouter);
-  app.use("/orders", ordersRouter);
+  app.use("/api/", indexRouter);
+  app.use("/api/users", userRouter);
+  app.use("/api/getAllUsers", userRouter);
+  app.use("/api/categories", categoriesRouter);
+  app.use("/api/restaurants", restaurantsRouter);
+  app.use("/api/products", productsRouter);
+  app.use("/api/orders", ordersRouter);
 
   // Admin restaurants routes
-  app.use("/admin/restaurants", adminRestaurantsRouter);
-  app.use("/admin/categories", adminCategoriesRouter);
-  app.use("/admin/products", adminProductsRouter);
-  app.use("/admin/orders", adminOrdersRouter);
-  app.use("/admin/promotions", adminPromotionsRouter);
+  app.use("/api/admin/restaurants", adminRestaurantsRouter);
+  app.use("/api/admin/categories", adminCategoriesRouter);
+  app.use("/api/admin/products", adminProductsRouter);
+  app.use("/api/admin/orders", adminOrdersRouter);
+  app.use("/api/admin/promotions", adminPromotionsRouter);
   // Swagger API documentation
-  app.use("/api-docs", swaggerUiMiddleware);
+  app.use("/api/api-docs", swaggerUiMiddleware);
 
   // 404 route
   app.use((req, res) => {
