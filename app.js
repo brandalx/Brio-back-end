@@ -42,7 +42,7 @@ app.use(
 );
 
 // Static folder
-app.use(express.static(path.join(__dirname, "public")));
+app.use("/api", express.static(path.join(__dirname, "public")));
 
 // initilization of the routes
 routesInit(app);
