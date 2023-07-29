@@ -6,6 +6,7 @@ let schema = new mongoose.Schema({
   tags: Array,
   userRef: String,
   coverImg: Array,
+  content: Object, // Draft.js output
 });
 export const blogsModel = mongoose.model("blogs", schema);
 

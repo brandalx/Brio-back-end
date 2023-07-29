@@ -8,4 +8,6 @@ router.get("/", blogsController.getAllBlogs);
 
 router.get("/:id/", blogsController.getBlogsById);
 
+router.post("/post/", blogsController.postUserBlog);
+
 export default router;

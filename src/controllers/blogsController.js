@@ -63,6 +63,13 @@ const blogsController = {
       res.status(502).json({ error: err });
     }
   },
+  async postUserBlog(req, res) {
+    try {
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ err });
+    }
+  },
 };
 
 export default blogsController;
