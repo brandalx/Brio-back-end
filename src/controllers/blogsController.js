@@ -97,8 +97,6 @@ const blogsController = {
       let newPost = new blogsModel(req.body);
       newPost.userRef = id;
 
-      await newPost.save();
-
       let postId = newPost._id;
 
       if (!postId) {
