@@ -85,7 +85,8 @@ const blogsController = {
       let newPost = new blogsModel(req.body);
       newPost.userRef = id;
 
-      await newOrder.save();
+      await newPost.save();
+      res.json(newPost);
     } catch (err) {
       console.log(err);
       res.status(502).json({ err });
