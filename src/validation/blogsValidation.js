@@ -9,7 +9,7 @@ export function validateBlogPost(reqBody) {
       blocks: Joi.array().required(),
       entityMap: Joi.object().required(),
     }).required(),
-    // cover: Joi.object().required(),
+
     userRef: Joi.string().optional(),
   });
 
