@@ -150,7 +150,8 @@ const blogsController = {
           newPost.cover = excludedPath;
           console.log(excludedPath);
           newPost.save();
-          res.json({ msg: "Post created", excludedPath });
+          let idToSend = newPost._id;
+          res.json({ msg: "Post created", idToSend, excludedPath });
         })
 
         .catch((err) => {
