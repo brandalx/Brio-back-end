@@ -1,6 +1,8 @@
 import { blogsModel } from "../models/blogs.js";
 import { UserClientModel } from "../models/userClient.js";
 import { validateBlogPost } from "../validation/blogsValidation.js";
+import fs from "fs";
+import path from "path";
 const blogsController = {
   async getAllBlogs(req, res) {
     try {
@@ -76,17 +78,85 @@ const blogsController = {
       if (!user) {
         return res.status(401).json({ err: "User not found" });
       }
-
+      console.log(req.body);
       let validBody = validateBlogPost(req.body);
+
       if (validBody.error) {
         return res.status(400).json(validBody.error.details);
+      }
+
+      const file = req.files.myFile;
+
+      if (!file) {
+        // check for req.file separately
+        return res
+          .status(400)
+          .json({ err: "You need to send cover for this post" });
       }
 
       let newPost = new blogsModel(req.body);
       newPost.userRef = id;
 
       await newPost.save();
-      res.json(newPost);
+
+      let postId = newPost._id;
+
+      if (!postId) {
+        return res.status(400).json("Post not created");
+      }
+
+      // Check that the file size is not greater than 5MB
+      if (file.size >= 1024 * 1024 * 5) {
+        return res.status(400).json({ err: "File too large: max 5 MB" });
+      }
+      console.log(file);
+      // Check that only certain image file extensions are allowed (e.g., .jpg, .png, .jpeg)
+      const allowedExtensions = [".jpg", ".jpeg", ".png"];
+      // Get the file extension
+      const fileExtension = path.extname(file.name);
+      // console.log(!allowedExtensions.includes(fileExtension), file.name);
+      if (!allowedExtensions.includes(fileExtension)) {
+        return res.status(400).json({
+          err: "You can only upload image files in format of .jpg, .png, .jpeg",
+        });
+      }
+      // Upload the file
+      // To make the file unique, use the user's ID and the current date in the filename
+      const dirPath = path.join(
+        "public",
+        "images",
+        "users",
+        id.toString(),
+        "posts"
+      );
+      const fileUrl = path.join(dirPath, `${postId + fileExtension}`);
+
+      // Check if directory exists, if not, create it
+      fs.promises
+        .mkdir(dirPath, { recursive: true })
+        .then(() => {
+          file.mv(fileUrl, (err) => {
+            if (err) {
+              return res.status(400).json({ err });
+            }
+          });
+        })
+        .then(() => {
+          const excludedPath = fileUrl.replace(
+            new RegExp(`^public\\${path.sep}`),
+            ""
+          );
+
+          newPost.cover = excludedPath;
+          console.log(excludedPath);
+          newPost.save();
+          res.json({ msg: "Post created", excludedPath });
+        })
+
+        .catch((err) => {
+          console.log(err);
+          res.status(502).json({ err });
+        });
     } catch (err) {
       console.log(err);
       res.status(502).json({ err });
