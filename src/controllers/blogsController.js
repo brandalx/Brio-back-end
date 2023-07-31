@@ -1,4 +1,6 @@
 import { blogsModel } from "../models/blogs.js";
+import { UserClientModel } from "../models/userClient.js";
+import { validateBlogPost } from "../validation/blogsValidation.js";
 const blogsController = {
   async getAllBlogs(req, res) {
     try {
@@ -65,6 +67,25 @@ const blogsController = {
   },
   async postUserBlog(req, res) {
     try {
+      const id = req.tokenData._id;
+      if (!id) {
+        res.status(200).json({ error: "token id required" });
+      }
+
+      let user = await UserClientModel.findOne({ _id: id });
+      if (!user) {
+        return res.status(401).json({ err: "User not found" });
+      }
+
+      let validBody = validateBlogPost(req.body);
+      if (validBody.error) {
+        return res.status(400).json(validBody.error.details);
+      }
+
+      let newPost = new blogsModel(req.body);
+      newPost.userRef = id;
+
+      await newOrder.save();
     } catch (err) {
       console.log(err);
       res.status(502).json({ err });
