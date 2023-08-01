@@ -8,10 +8,7 @@ export function validateBlogPost(reqBody) {
     title: Joi.string().required(),
     desc: Joi.string().required(),
     tags: Joi.array().items(Joi.string()).required(),
-    content: Joi.object({
-      blocks: Joi.array().required(),
-      entityMap: Joi.object().required(),
-    }).required(),
+    content: Joi.object().required(),
     userRef: Joi.string().optional(),
   });
 
