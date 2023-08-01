@@ -7,6 +7,10 @@ let schema = new mongoose.Schema({
   userRef: String,
   cover: String,
   content: Object, // Draft.js output
+  creationDate: {
+    type: Date,
+    default: Date.now(),
+  },
 });
 export const blogsModel = mongoose.model("blogs", schema);
 
