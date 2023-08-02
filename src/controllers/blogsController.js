@@ -139,22 +139,22 @@ const blogsController = {
             }
           });
         })
-        .then(() => {
+        .then(async () => {
           const excludedPath = fileUrl.replace(
             new RegExp(`^public\\${path.sep}`),
             ""
           );
 
           newPost.cover = excludedPath;
-          console.log(excludedPath);
-          newPost.save();
-          let idToSend = newPost._id;
-          res.json({ msg: "Post created", idToSend, excludedPath });
+          await newPost.save();
         })
-
-        .catch((err) => {
-          console.log(err);
-          res.status(502).json({ err });
+        .then(() => {
+          let idToSend = newPost._id;
+          const excludedPath = fileUrl.replace(
+            new RegExp(`^public\\${path.sep}`),
+            ""
+          );
+          res.json({ msg: "Post created", idToSend, excludedPath });
         });
     } catch (err) {
       console.log(err);
