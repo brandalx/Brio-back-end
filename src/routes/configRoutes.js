@@ -5,6 +5,7 @@ import categoriesRouter from "./categories.js";
 import restaurantsRouter from "./restaurants.js";
 import productsRouter from "./products.js";
 import ordersRouter from "./orders.js";
+import blogsRouter from "./blogsRouter.js";
 import { swaggerUiMiddleware } from "../docs/swaggerConfig.js";
 import adminOrdersRouter from "./adminOrdersRouter.js";
 import adminProductsRouter from "./adminProductsRouter.js";
@@ -28,6 +29,7 @@ export const routesInit = (app) => {
   app.use("/api/restaurants", restaurantsRouter);
   app.use("/api/products", productsRouter);
   app.use("/api/orders", ordersRouter);
+  app.use("/api/blogs", blogsRouter);
 
   // Admin restaurants routes
   app.use("/api/admin/restaurants", adminRestaurantsRouter);
