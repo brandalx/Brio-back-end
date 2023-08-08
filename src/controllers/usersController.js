@@ -312,7 +312,7 @@ const usersController = {
       if (validBody.error) {
         return res.status(400).json(validBody.error.details);
       }
-
+      req.body.email = req.body.email.toLowerCase();
       let data = await UserClientModel.updateOne({ _id: id }, req.body);
 
       return res.json(data);
@@ -835,7 +835,7 @@ const usersController = {
       let userBody = { ...baseUser, ...req.body };
 
       let user = new UserClientModel(userBody);
-
+      user.email = user.email.toLowerCase();
       user.password = await bcrypt.hash(user.password, 10);
       console.log(req.body.password);
       console.log(user.password);
@@ -913,7 +913,9 @@ const usersController = {
       return res.status(400).json(validBody.error.details);
     }
     try {
-      let user = await UserClientModel.findOne({ email: req.body.email });
+      let user = await UserClientModel.findOne({
+        email: req.body.email.toLowerCase(),
+      });
 
       if (!user) {
         return res
