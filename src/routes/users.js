@@ -12,6 +12,7 @@ router.get("/testsend", usersController.sendVerificationEmail);
 router.get("/getAllUsers", usersController.getAllUsers);
 router.get("/:id", authAdmin, usersController.getUserById);
 router.get("/:id/cart", auth, usersController.getUserCart);
+router.post("/checkemail", usersController.checkEmail);
 router.get(
   "/cart/presummary",
   auth,
@@ -48,6 +49,5 @@ router.post(
 );
 router.post("/addAdminByEmail", authAdmin, usersController.postAddAdminByEmail);
 router.post("/verifyPassword", authAdmin, usersController.verifyPassword);
-
 
 export default router;

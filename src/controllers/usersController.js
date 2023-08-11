@@ -637,6 +637,23 @@ const usersController = {
       return res.status(502).json({ err });
     }
   },
+
+  async checkEmail(req, res) {
+    console.log(req.body.email);
+    req.body.email = req.body.email.toLowerCase();
+    try {
+      let user = await UserClientModel.findOne({ email: req.body.email });
+      let user2 = await UserClientModel.findOne({ nickname: req.body.email });
+      if (!user || !user2) {
+        return res.status(200).json({ true: true });
+      } else if (user && user2) {
+        return res.status(400).json({ false: false });
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ err });
+    }
+  },
   async postToCart(req, res) {
     const idParams = req.params.id;
     const id = req.tokenData._id;
