@@ -644,9 +644,9 @@ const usersController = {
     try {
       let user = await UserClientModel.findOne({ email: req.body.email });
       let user2 = await UserClientModel.findOne({ nickname: req.body.email });
-      if (!user || !user2) {
+      if (!user && !user2) {
         return res.status(200).json({ true: true });
-      } else if (user && user2) {
+      } else if (user || user2) {
         return res.status(400).json({ false: false });
       }
     } catch (err) {
