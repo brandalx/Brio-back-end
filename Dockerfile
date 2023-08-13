@@ -22,6 +22,9 @@ RUN npm uninstall uuid
 RUN npm uninstall bcrypt
 RUN npm uninstall cors
 RUN npm uninstall dotenv
+RUN npm uninstall openai
+
+
 
 
 RUN npm install express
@@ -39,6 +42,7 @@ RUN npm install uuid
 RUN npm install bcrypt
 RUN npm install cors
 RUN npm install dotenv
+RUN npm install openai
 
 COPY . .
 
