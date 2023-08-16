@@ -32,8 +32,17 @@ import Restaurants from "../models/restaurants.js";
 import jwt from "jsonwebtoken";
 import { tokenSecret1, tokenSendGrid } from "../configs/config.js";
 import promotionsModel from "../models/promotions.js";
+import { sendGreetingEmail } from "../services/emailService.js";
 
 const usersController = {
+  toNameFormat(str) {
+    if (!str || typeof str !== "string") {
+      return "";
+    }
+
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  },
+
   generateSixDigitNumber() {
     var min = 100000;
     var max = 999999;
@@ -310,10 +319,40 @@ const usersController = {
 
       let validBody = validateUserClientData(req.body);
       if (validBody.error) {
+        console.log(validBody.error);
         return res.status(400).json(validBody.error.details);
       }
-      req.body.email = req.body.email.toLowerCase();
-      let data = await UserClientModel.updateOne({ _id: id }, req.body);
+
+      let finalBody = {};
+      if (req.body.firstname.length >= 2) {
+        let finalfirstname = usersController.toNameFormat(req.body.firstname);
+        finalBody.firstname = finalfirstname;
+      }
+
+      if (req.body.lastname.length >= 2) {
+        let finallastname = usersController.toNameFormat(req.body.lastname);
+        finalBody.lastname = finallastname;
+      }
+
+      if (req.body.email.length >= 5) {
+        finalBody.email = req.body.email;
+        finalBody.email = finalBody.email.toLowerCase();
+      }
+
+      if (req.body.phone.length >= 6) {
+        finalBody.phone = req.body.phone;
+      }
+
+      console.log(finalBody);
+
+      let data = await UserClientModel.updateOne({ _id: id }, finalBody);
+
+      if (finalBody.email && finalBody.email.length >= 5) {
+        let data2 = await UserClientModel.updateOne(
+          { _id: id },
+          { nickname: finalBody.email }
+        );
+      }
 
       return res.json(data);
     } catch (err) {
@@ -321,6 +360,7 @@ const usersController = {
       return res.status(502).json({ err });
     }
   },
+
   async postUserAddress(req, res) {
     // const id = req.params.id;
 
@@ -597,6 +637,23 @@ const usersController = {
       return res.status(502).json({ err });
     }
   },
+
+  async checkEmail(req, res) {
+    console.log(req.body.email);
+    req.body.email = req.body.email.toLowerCase();
+    try {
+      let user = await UserClientModel.findOne({ email: req.body.email });
+      let user2 = await UserClientModel.findOne({ nickname: req.body.email });
+      if (!user && !user2) {
+        return res.status(200).json({ true: true });
+      } else if (user || user2) {
+        return res.status(400).json({ false: false });
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(502).json({ err });
+    }
+  },
   async postToCart(req, res) {
     const idParams = req.params.id;
     const id = req.tokenData._id;
@@ -658,6 +715,7 @@ const usersController = {
       if (validBody.error) {
         return res.status(400).json(validBody.error.details);
       }
+      req.body.email = req.body.email.toLowerCase();
       let user = await UserClientModel.findOne({ email: req.body.email });
       if (!user) {
         return res.status(401).json({ err: "User not found" });
@@ -836,11 +894,18 @@ const usersController = {
 
       let user = new UserClientModel(userBody);
       user.email = user.email.toLowerCase();
+      user.nickname = user.nickname.toLocaleLowerCase();
       user.password = await bcrypt.hash(user.password, 10);
       console.log(req.body.password);
       console.log(user.password);
+
+      let finalFirstname = usersController.toNameFormat(user.firstname);
+      let finalLastname = usersController.toNameFormat(user.lastname);
+      user.firstname = finalFirstname;
+      user.lastname = finalLastname;
       user = await user.save();
       user.password = usersController.randomStars();
+      await sendGreetingEmail(user.email, user.firstname);
       res.status(201).json(user);
     } catch (err) {
       console.log(err);

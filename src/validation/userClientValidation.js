@@ -115,10 +115,27 @@ export function validateUserClient(_reqBody) {
 
 export function validateUserClientData(_reqBody) {
   const joiSchema = Joi.object({
-    firstname: Joi.string().min(2).max(150).required(),
-    lastname: Joi.string().min(2).max(150).required(),
-    email: Joi.string().email().min(2).max(150).required(),
-    phone: Joi.string().min(2).max(150).required(),
+    firstname: Joi.string()
+      .min(2)
+      .max(20)
+      .pattern(/^[A-Za-z]+$/, { name: "latin characters" })
+      .allow(null, "")
+      .message({
+        "string.pattern.name":
+          "Firstname should only contain Latin characters without numbers.",
+      }),
+
+    lastname: Joi.string()
+      .min(2)
+      .max(20)
+      .pattern(/^[A-Za-z]+$/, { name: "latin characters" })
+      .allow(null, "")
+      .message({
+        "string.pattern.name":
+          "Firstname should only contain Latin characters without numbers.",
+      }),
+    email: Joi.string().email().min(5).max(30).allow(null, ""),
+    phone: Joi.string().min(6).max(12).allow(null, ""),
   });
 
   return joiSchema.validate(_reqBody);
