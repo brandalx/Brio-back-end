@@ -715,6 +715,7 @@ const usersController = {
       if (validBody.error) {
         return res.status(400).json(validBody.error.details);
       }
+      req.body.email = req.body.email.toLowerCase();
       let user = await UserClientModel.findOne({ email: req.body.email });
       if (!user) {
         return res.status(401).json({ err: "User not found" });
